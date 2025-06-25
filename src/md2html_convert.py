@@ -49,8 +49,9 @@ class Markdown2HTMLConverter:
             extension_configs=self.extension_configs
         )
 
-        self.css_content = self.load_content_from_file("static/blocks.css")
-        self.js_content = self.load_content_from_file("static/blocks.js")
+        self.css_content = self.load_content_from_file("static/mdBlocks.css")
+        self.latex_script = '<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>'
+        self.js_content = self.load_content_from_file("static/copyBtn.js")
     
     def load_content_from_file(self, css_file):
         assert os.path.exists(css_file)
@@ -58,12 +59,15 @@ class Markdown2HTMLConverter:
             css_content = f.read()
         return css_content
     
-    def __call__(self, text):
+    def __call__(self, text, only_return_body):
         html_content = self.executor.convert(text)
         self.executor.reset()
         html_content = self.post_process_html(html_content)
 
-        return f"""<!DOCTYPE html>
+        if only_return_body:
+            return html_content
+        else:
+            return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -72,7 +76,7 @@ class Markdown2HTMLConverter:
     <style>
         {self.css_content}
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    {self.latex_script}
 </head>
 <body>
     <div class="content">
@@ -139,7 +143,6 @@ class Markdown2HTMLConverter:
                 new_tag.append(child)
             mark.replace_with(new_tag)
         
-
         
         return str(soup)
         

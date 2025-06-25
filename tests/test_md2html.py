@@ -361,7 +361,7 @@ Here's a complex example combining multiple elements:
 converter = Markdown2HTMLConverter()
 
 # Convert to HTML
-html_output = converter(sample_markdown)
+html_output = converter(sample_markdown, only_return_body=False)
 
 # Save to file
 with open('tests/output.html', 'w', encoding='utf-8') as f:
