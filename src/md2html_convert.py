@@ -5,10 +5,18 @@ from bs4 import BeautifulSoup
 class Markdown2HTMLConverter:
     def __init__(self) -> None:
         self.enabled_extensiosns = [
+            'admonition',                # Admonitions/Alerts
+            'pymdownx.details',          # Collapsible admonitions
+            'pymdownx.superfences',      # SuperFences for custom code blocks (e.g., mermaid)
             'codehilite',
             'fenced_code',
             'tables',
-            'toc'
+            'toc',
+            'pymdownx.tilde',      # ~~strikethrough~~ and ~subscript~
+            'pymdownx.mark',       # ==highlight==
+            'pymdownx.caret',      # ^superscript^
+            'pymdownx.tasklist',   # [x] task lists
+            'pymdownx.arithmatex', # $math$ and $$math$$
             # 'footnotes', 'smarty', 'attr_list', 'wikilinks'
         ]
         self.extension_configs = {
@@ -18,6 +26,21 @@ class Markdown2HTMLConverter:
                 'noclasses': False, 
                 'linenos': True,
                 'linenostart': 1,
+            },
+            'pymdownx.tasklist': {
+                'custom_checkbox': True,
+            },
+            'pymdownx.arithmatex': {
+                'generic': True,
+            },
+            'pymdownx.superfences': {
+                'custom_fences': [
+                    {
+                        'name': 'mermaid',
+                        'class': 'mermaid',
+                        'format': '!!python/name:pymdownx.superfences.fence_code_format',
+                    },
+                ],
             },
         }
 
@@ -48,6 +71,9 @@ class Markdown2HTMLConverter:
     <style>
         {self.css_content}
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>if(window.mermaid) mermaid.initialize({{startOnLoad:true}});</script>
 </head>
 <body>
     <div class="content">
@@ -62,21 +88,26 @@ class Markdown2HTMLConverter:
         
         # 1. Process tables: add 'markdown-table' class to non-code tables
         for table in soup.find_all('table'):
+            # Skip tables that are for code highlighting (e.g., class 'highlighttable')
+            if 'highlighttable' in table.get('class', []):
+                continue
             # Check if this table is part of a code block
             parent = table.parent
             is_code_table = False
-            
-            # Check if table is within a highlight div (code block)
             while parent:
-                if parent.name == 'div' and 'highlight' in parent.get('class', []):
+                parent_classes = parent.get('class', [])
+                if (
+                    (parent.name == 'div' and 'highlight' in parent_classes) or
+                    (parent.name == 'table' and 'highlighttable' in parent_classes)
+                ):
                     is_code_table = True
                     break
                 parent = parent.parent
-            
             # Add class to non-code tables
             if not is_code_table:
                 current_classes = table.get('class', [])
-                current_classes.append('markdown-table')
+                if 'markdown-table' not in current_classes:
+                    current_classes.append('markdown-table')
                 table['class'] = current_classes
         
         # 2. Process hyperlinks
@@ -95,6 +126,17 @@ class Markdown2HTMLConverter:
             else:
                 # Local file path
                 link['class'] = link.get('class', []) + ['file-path']
+        
+        # 3. process mark class
+        # Convert "mark" tag to "markdown-hlt"
+        # Convert all <mark> tags to <markdown-hlt> tags
+        for mark in soup.find_all('mark'):
+            new_tag = soup.new_tag('markdown-hlt')
+            # Move all children from <mark> to <markdown-hlt>
+            for child in mark.contents:
+                new_tag.append(child)
+            mark.replace_with(new_tag)
+        
 
         
         return str(soup)
