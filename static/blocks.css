@@ -254,7 +254,6 @@ a.file-path:hover, a.file-path:focus {
 
 /* In page jump link styling */
 a.jump-link {
-    border-bottom: 1px dotted #7c3aed;
     transition: all 0.2s cubic-bezier(.4,0,.2,1);
 }
 a.jump-link:hover, a.jump-link:focus {
@@ -411,3 +410,51 @@ details > summary {
 details[open] > summary {
   border-bottom: 1px solid #6366f1;
 }
+
+/* Copy button for code blocks, tables, details */
+.copy-btn {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  display: none;
+  padding: 4px 10px;
+  font-size: 0.95em;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(99,102,241,0.13);
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0.95;
+}
+.copy-btn:hover, .copy-btn:focus {
+  background: #1d4ed8;
+  opacity: 1;
+  border: 3px solid #3730a3;
+}
+
+/* Query button for text selection */
+.query-btn {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  position: fixed;
+  z-index: 9999;
+  display: none;
+  padding: 4px 12px;
+  font-size: 1em;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(37,99,235,0.13);
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0.97;
+}
+.query-btn:hover, .query-btn:focus {
+  background: #1d4ed8;
+  opacity: 1;
+}
+

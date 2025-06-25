@@ -49,9 +49,10 @@ class Markdown2HTMLConverter:
             extension_configs=self.extension_configs
         )
 
-        self.css_content = self.load_css_from_file("static/blocks.css")
+        self.css_content = self.load_content_from_file("static/blocks.css")
+        self.js_content = self.load_content_from_file("static/blocks.js")
     
-    def load_css_from_file(self, css_file):
+    def load_content_from_file(self, css_file):
         assert os.path.exists(css_file)
         with open(css_file, 'r', encoding='utf-8') as f:
             css_content = f.read()
@@ -72,13 +73,14 @@ class Markdown2HTMLConverter:
         {self.css_content}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script>if(window.mermaid) mermaid.initialize({{startOnLoad:true}});</script>
 </head>
 <body>
     <div class="content">
         {html_content}
     </div>
+    <script>
+    {self.js_content}
+    </script>
 </body>
 </html>"""
     
