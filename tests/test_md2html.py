@@ -157,15 +157,15 @@ Term 2
 ## Images and Files
 
 ### Regular Images
-![Sample Image](https://via.placeholder.com/400x200)
+![Sample Image](tests/a_picture.png)
 ![Alt Text](https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image)
 
 ### Images with Titles
-![Sample Image](https://via.placeholder.com/400x200 "This is a title")
+![Sample Image](https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png "This is a title")
 
 ### Local Files
-![Local Text File](requirements.txt)
-![Binary File](test.pdf)
+[Local Text File](tests/a_readable_file.html)
+[Binary File](tests/a_binary_file.bin)
 
 ### Reference Style Images
 ![Reference Image][ref-image]

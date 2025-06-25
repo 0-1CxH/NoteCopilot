@@ -84,7 +84,6 @@ pre code {
     white-space: pre;
     tab-size: 4;
 }
-
 /* Additional fallback styles for common Pygments classes */
 .highlight .k { color: #d73a49; font-weight: bold; } /* Keyword */
 .highlight .kd { color: #d73a49; font-weight: bold; } /* Keyword.Declaration */
@@ -124,6 +123,35 @@ pre code {
 .highlight .p { color: #24292e; } /* Punctuation */
 .highlight .w { color: #24292e; } /* Whitespace */
 
+/* Language labels for code blocks */
+.highlight:before {
+    content: "";
+    display: block;
+    background: #f0f0f0;
+    color: #333;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0;
+}
+
+/* .highlight-python:before { content: "Python"; }
+.highlight-javascript:before { content: "JavaScript"; }
+.highlight-java:before { content: "Java"; }
+.highlight-cpp:before { content: "C++"; }
+.highlight-c:before { content: "C"; }
+.highlight-html:before { content: "HTML"; }
+.highlight-css:before { content: "CSS"; }
+.highlight-sql:before { content: "SQL"; }
+.highlight-bash:before { content: "Bash"; }
+.highlight-json:before { content: "JSON"; }
+.highlight-xml:before { content: "XML"; }
+.highlight-yaml:before { content: "YAML"; }
+.highlight-markdown:before { content: "Markdown"; } */
+
+/* Style the code block container */
+
 blockquote {
     border-left: 4px solid #dfe2e5;
     margin: 1em 0;
@@ -132,27 +160,6 @@ blockquote {
     font-style: italic;
 }
 
-.markdown-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 1em 0;
-}
-
-.markdown-table th,
-.markdown-table td {
-    border: 1px solid #d0d7de;
-    padding: 8px 12px;
-    text-align: left;
-}
-
-.markdown-table th {
-    background-color: #f6f8fa;
-    font-weight: 600;
-}
-
-.markdown-table tr:nth-child(even) {
-    background-color: #f6f8fa;
-}
 
 ul, ol {
     margin: 1em 0;
@@ -163,134 +170,143 @@ li {
     margin-bottom: 0.5em;
 }
 
-.markdown-image,
-.embedded-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    margin: 1em 0;
+/* Markdown table styles */
+.markdown-table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    width: 100%;
 }
 
-.text-preview-box {
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    margin: 1em 0;
-    overflow: hidden;
+.markdown-table th,
+.markdown-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
 }
 
-.preview-header {
-    background: #f6f8fa;
-    padding: 12px;
-    border-bottom: 1px solid #d0d7de;
-    font-weight: 600;
+.markdown-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
 }
 
-.file-size {
-    color: #656d76;
-    font-weight: normal;
-    font-size: 0.9em;
+.markdown-table tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-.preview-content {
-    padding: 16px;
-    margin: 0;
-    background: white;
-    max-height: 300px;
-    overflow-y: auto;
-    font-size: 0.9em;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-}
 
-.binary-file-card {
-    display: flex;
-    align-items: center;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    padding: 16px;
-    margin: 1em 0;
-    background: #f6f8fa;
-}
-
-.file-icon {
-    font-size: 2em;
-    margin-right: 16px;
-}
-
-.file-info {
-    flex: 1;
-}
-
-.file-name {
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.file-details {
-    color: #656d76;
-    font-size: 0.9em;
-}
-
-.file-type {
-    margin-right: 12px;
-}
-
-.web-preview-box {
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    margin: 1em 0;
-    overflow: hidden;
-}
-
-.web-preview-box .preview-header {
-    background: #e3f2fd;
-    padding: 12px;
-    border-bottom: 1px solid #d0d7de;
-}
-
-.web-icon {
-    margin-right: 8px;
-}
-
-.web-title {
-    font-weight: 600;
-}
-
-.web-url {
-    padding: 12px;
-    background: white;
-}
-
-.web-url a {
-    color: #0969da;
-    text-decoration: none;
-}
-
-.web-url a:hover {
-    text-decoration: underline;
-}
-
-.web-domain {
-    padding: 0 12px 12px;
-    color: #656d76;
-    font-size: 0.9em;
-}
-
-.error {
-    color: #d1242f;
-    background: #ffebe9;
-    padding: 12px;
-    border-radius: 6px;
-    margin: 1em 0;
-    border: 1px solid #fd8c73;
-}
 
 a {
     color: #0969da;
     text-decoration: none;
+    padding: 3px;
+    transition: all 0.2s ease;
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: dashed;
+    background-color: #f0f6fc;
+    border-radius: 5px;
+}
+
+/* Web URL styling */
+a.web-url {
+    color: #6f42c1;
+    text-decoration: none;
+    border: 1px dashed #6f42c1;
+    padding-left: 8px;
+    padding-right: 8px;
+    transition: all 0.2s ease;
+}
+
+a.web-url:hover {
+    background-color: #f3f0ff;
+    color: #5a32a3;
+}
+
+a.web-url::before {
+    content: "↘ ";
+    font-weight: bold;
+    opacity: 0.7;
+/* a.web-url {
+    color: #0366d6;
+    text-decoration: none;
+    border-bottom: 1px dotted #0366d6;
+    transition: all 0.2s ease;
+}
+
+a.web-url:hover {
+    color: #0256c7;
+    border-bottom-style: solid;
+}
+
+a.web-url::after {
+    content: " 🔗";
+    font-size: 0.8em;
+    opacity: 0.6;
+} */
+
+/* File path styling */
+a.file-path {
+    color: #28a745;
+    text-decoration: none;
+    background-color: #f0f9f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+}
+
+a.file-path:hover {
+    background-color: #d4edda;
+    color: #1e7e34;
+}
+
+a.file-path::before {
+    content: "📁 ";
+    font-size: 0.9em;
+}
+
+/* Jump link (in-page anchor) styling */
+/* a.jump-link {
+    color: #6f42c1;
+    text-decoration: none;
+    border-left: 3px solid #6f42c1;
+    padding-left: 8px;
+    margin-left: -11px;
+    transition: all 0.2s ease;
+}
+
+a.jump-link:hover {
+    background-color: #f3f0ff;
+    color: #5a32a3;
+}
+
+a.jump-link::before {
+    content: "↓ ";
+    font-weight: bold;
+    opacity: 0.7;
+} */
+
+
+a.jump-link {
+    border-bottom: 1px dotted #6f42c1;
+    transition: all 0.2s ease;
+}
+
+a.jump-link:hover {
+    border: 1px dotted #6f42c1;
+    border-style: solid;
+}
+
+a.jump-link::after {
+    font-size: 0.8em;
+    opacity: 0.6;
+}
+
+/* Optional: Add smooth scrolling for jump links */
+html {
+    scroll-behavior: smooth;
 }
 
 strong {
@@ -312,104 +328,104 @@ del {
     <div class="content">
         <div class="toc">
 <ul>
-<li><a href="#sample-markdown-document-with-comprehensive-syntax">Sample Markdown Document with Comprehensive Syntax</a><ul>
-<li><a href="#table-of-contents-and-navigation">Table of Contents and Navigation</a></li>
-<li><a href="#code-examples-code-examples">Code Examples {#code-examples}</a><ul>
-<li><a href="#code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</a></li>
-<li><a href="#different-language-examples">Different Language Examples</a></li>
-<li><a href="#code-block-without-language">Code Block Without Language</a></li>
+<li><a class="jump-link" href="#sample-markdown-document-with-comprehensive-syntax">Sample Markdown Document with Comprehensive Syntax</a><ul>
+<li><a class="jump-link" href="#table-of-contents-and-navigation">Table of Contents and Navigation</a></li>
+<li><a class="jump-link" href="#code-examples-code-examples">Code Examples {#code-examples}</a><ul>
+<li><a class="jump-link" href="#code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</a></li>
+<li><a class="jump-link" href="#different-language-examples">Different Language Examples</a></li>
+<li><a class="jump-link" href="#code-block-without-language">Code Block Without Language</a></li>
 </ul>
 </li>
-<li><a href="#tables-tables">Tables {#tables}</a><ul>
-<li><a href="#basic-table">Basic Table</a></li>
-<li><a href="#table-with-alignment">Table with Alignment</a></li>
-<li><a href="#complex-table">Complex Table</a></li>
+<li><a class="jump-link" href="#tables-tables">Tables {#tables}</a><ul>
+<li><a class="jump-link" href="#basic-table">Basic Table</a></li>
+<li><a class="jump-link" href="#table-with-alignment">Table with Alignment</a></li>
+<li><a class="jump-link" href="#complex-table">Complex Table</a></li>
 </ul>
 </li>
-<li><a href="#task-lists-task-lists">Task Lists {#task-lists}</a><ul>
-<li><a href="#todo-items">TODO Items</a></li>
-<li><a href="#nested-task-lists">Nested Task Lists</a></li>
+<li><a class="jump-link" href="#task-lists-task-lists">Task Lists {#task-lists}</a><ul>
+<li><a class="jump-link" href="#todo-items">TODO Items</a></li>
+<li><a class="jump-link" href="#nested-task-lists">Nested Task Lists</a></li>
 </ul>
 </li>
-<li><a href="#quote-examples">Quote Examples</a><ul>
-<li><a href="#simple-blockquote">Simple Blockquote</a></li>
-<li><a href="#nested-blockquotes">Nested Blockquotes</a></li>
-<li><a href="#blockquote-with-other-elements">Blockquote with Other Elements</a></li>
+<li><a class="jump-link" href="#quote-examples">Quote Examples</a><ul>
+<li><a class="jump-link" href="#simple-blockquote">Simple Blockquote</a></li>
+<li><a class="jump-link" href="#nested-blockquotes">Nested Blockquotes</a></li>
+<li><a class="jump-link" href="#blockquote-with-other-elements">Blockquote with Other Elements</a></li>
 </ul>
 </li>
-<li><a href="#this-is-a-header-in-blockquote">This is a header in blockquote</a></li>
-<li><a href="#list-examples">List Examples</a><ul>
-<li><a href="#unordered-lists">Unordered Lists</a></li>
-<li><a href="#ordered-lists">Ordered Lists</a></li>
-<li><a href="#mixed-lists">Mixed Lists</a></li>
-<li><a href="#definition-lists">Definition Lists</a></li>
+<li><a class="jump-link" href="#this-is-a-header-in-blockquote">This is a header in blockquote</a></li>
+<li><a class="jump-link" href="#list-examples">List Examples</a><ul>
+<li><a class="jump-link" href="#unordered-lists">Unordered Lists</a></li>
+<li><a class="jump-link" href="#ordered-lists">Ordered Lists</a></li>
+<li><a class="jump-link" href="#mixed-lists">Mixed Lists</a></li>
+<li><a class="jump-link" href="#definition-lists">Definition Lists</a></li>
 </ul>
 </li>
-<li><a href="#images-and-files">Images and Files</a><ul>
-<li><a href="#regular-images">Regular Images</a></li>
-<li><a href="#images-with-titles">Images with Titles</a></li>
-<li><a href="#local-files">Local Files</a></li>
-<li><a href="#reference-style-images">Reference Style Images</a></li>
+<li><a class="jump-link" href="#images-and-files">Images and Files</a><ul>
+<li><a class="jump-link" href="#regular-images">Regular Images</a></li>
+<li><a class="jump-link" href="#images-with-titles">Images with Titles</a></li>
+<li><a class="jump-link" href="#local-files">Local Files</a></li>
+<li><a class="jump-link" href="#reference-style-images">Reference Style Images</a></li>
 </ul>
 </li>
-<li><a href="#links-and-references-links-and-references">Links and References {#links-and-references}</a><ul>
-<li><a href="#regular-links">Regular Links</a></li>
-<li><a href="#automatic-links">Automatic Links</a></li>
-<li><a href="#reference-style-links">Reference Style Links</a></li>
-<li><a href="#links-with-titles">Links with Titles</a></li>
+<li><a class="jump-link" href="#links-and-references-links-and-references">Links and References {#links-and-references}</a><ul>
+<li><a class="jump-link" href="#regular-links">Regular Links</a></li>
+<li><a class="jump-link" href="#automatic-links">Automatic Links</a></li>
+<li><a class="jump-link" href="#reference-style-links">Reference Style Links</a></li>
+<li><a class="jump-link" href="#links-with-titles">Links with Titles</a></li>
 </ul>
 </li>
-<li><a href="#advanced-formatting">Advanced Formatting</a><ul>
-<li><a href="#text-formatting">Text Formatting</a></li>
-<li><a href="#keyboard-keys">Keyboard Keys</a></li>
-<li><a href="#line-breaks">Line Breaks</a></li>
+<li><a class="jump-link" href="#advanced-formatting">Advanced Formatting</a><ul>
+<li><a class="jump-link" href="#text-formatting">Text Formatting</a></li>
+<li><a class="jump-link" href="#keyboard-keys">Keyboard Keys</a></li>
+<li><a class="jump-link" href="#line-breaks">Line Breaks</a></li>
 </ul>
 </li>
-<li><a href="#horizontal-rules">Horizontal Rules</a></li>
-<li><a href="#footnotes">Footnotes</a></li>
-<li><a href="#math-equations-if-supported">Math Equations (if supported)</a></li>
-<li><a href="#emoji-support">Emoji Support</a></li>
-<li><a href="#html-mixed-in">HTML Mixed In</a></li>
-<li><a href="#code-spans-and-escaping">Code Spans and Escaping</a></li>
-<li><a href="#special-characters-and-entities">Special Characters and Entities</a></li>
-<li><a href="#admonitionsalerts-if-supported">Admonitions/Alerts (if supported)</a></li>
-<li><a href="#mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</a></li>
-<li><a href="#headers-of-all-levels">Headers of All Levels</a></li>
+<li><a class="jump-link" href="#horizontal-rules">Horizontal Rules</a></li>
+<li><a class="jump-link" href="#footnotes">Footnotes</a></li>
+<li><a class="jump-link" href="#math-equations-if-supported">Math Equations (if supported)</a></li>
+<li><a class="jump-link" href="#emoji-support">Emoji Support</a></li>
+<li><a class="jump-link" href="#html-mixed-in">HTML Mixed In</a></li>
+<li><a class="jump-link" href="#code-spans-and-escaping">Code Spans and Escaping</a></li>
+<li><a class="jump-link" href="#special-characters-and-entities">Special Characters and Entities</a></li>
+<li><a class="jump-link" href="#admonitionsalerts-if-supported">Admonitions/Alerts (if supported)</a></li>
+<li><a class="jump-link" href="#mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</a></li>
+<li><a class="jump-link" href="#headers-of-all-levels">Headers of All Levels</a></li>
 </ul>
 </li>
-<li><a href="#h1-header">H1 Header</a><ul>
-<li><a href="#h2-header">H2 Header</a><ul>
-<li><a href="#h3-header">H3 Header</a><ul>
-<li><a href="#h4-header">H4 Header</a><ul>
-<li><a href="#h5-header">H5 Header</a><ul>
-<li><a href="#h6-header">H6 Header</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a class="jump-link" href="#h1-header">H1 Header</a><ul>
+<li><a class="jump-link" href="#h2-header">H2 Header</a><ul>
+<li><a class="jump-link" href="#h3-header">H3 Header</a><ul>
+<li><a class="jump-link" href="#h4-header">H4 Header</a><ul>
+<li><a class="jump-link" href="#h5-header">H5 Header</a><ul>
+<li><a class="jump-link" href="#h6-header">H6 Header</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#complex-example">Complex Example</a><ul>
-<li><a href="#quote-with-header">Quote with Header</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#code-block-inside-blockquote">Code block inside blockquote</a></li>
+<li><a class="jump-link" href="#complex-example">Complex Example</a><ul>
+<li><a class="jump-link" href="#quote-with-header">Quote with Header</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="jump-link" href="#code-block-inside-blockquote">Code block inside blockquote</a></li>
 </ul>
 </div>
 <h1 id="sample-markdown-document-with-comprehensive-syntax">Sample Markdown Document with Comprehensive Syntax</h1>
 <p>This is a <strong>bold</strong> text and this is <em>italic</em>. Here's some <code>inline code</code>.</p>
 <h2 id="table-of-contents-and-navigation">Table of Contents and Navigation</h2>
 <ul>
-<li><a href="#code-examples">Code Examples</a></li>
-<li><a href="#tables">Tables</a>  </li>
-<li><a href="#task-lists">Task Lists</a></li>
-<li><a href="#links-and-references">Links and References</a></li>
+<li><a class="jump-link" href="#code-examples">Code Examples</a></li>
+<li><a class="jump-link" href="#tables">Tables</a> </li>
+<li><a class="jump-link" href="#task-lists">Task Lists</a></li>
+<li><a class="jump-link" href="#links-and-references">Links and References</a></li>
 </ul>
-<hr />
+<hr/>
 <h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
 <h3 id="code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</h3>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
@@ -417,12 +433,11 @@ del {
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;success&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello, World!"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"success"</span>
 <span class="c1"># This is a comment</span>
 <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
-
 <h3 id="different-language-examples">Different Language Examples</h3>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
@@ -432,16 +447,14 @@ del {
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div></td></tr></table></div>
-
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Running deployment script...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Running deployment script..."</span>
 <span class="nb">cd</span><span class="w"> </span>/var/www/html
 git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
 </code></pre></div></td></tr></table></div>
-
 <h3 id="code-block-without-language">Code Block Without Language</h3>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
@@ -449,10 +462,9 @@ git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </
 No syntax highlighting
 Just monospace font
 </code></pre></div></td></tr></table></div>
-
 <h2 id="tables-tables">Tables {#tables}</h2>
 <h3 id="basic-table">Basic Table</h3>
-<table>
+<table class="markdown-table">
 <thead>
 <tr>
 <th>Name</th>
@@ -474,7 +486,7 @@ Just monospace font
 </tbody>
 </table>
 <h3 id="table-with-alignment">Table with Alignment</h3>
-<table>
+<table class="markdown-table">
 <thead>
 <tr>
 <th style="text-align: left;">Left Aligned</th>
@@ -501,7 +513,7 @@ Just monospace font
 </tbody>
 </table>
 <h3 id="complex-table">Complex Table</h3>
-<table>
+<table class="markdown-table">
 <thead>
 <tr>
 <th>Feature</th>
@@ -584,9 +596,8 @@ It can span multiple lines.</p>
 <li>This is the second list item.</li>
 </ol>
 <p>Here's some code in a blockquote:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>return shell_exec(&quot;echo $input | $markdown_script&quot;);
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>return shell_exec("echo $input | $markdown_script");
 </code></pre></div></td></tr></table></div>
-
 </blockquote>
 <h2 id="list-examples">List Examples</h2>
 <h3 id="unordered-lists">Unordered Lists</h3>
@@ -631,26 +642,26 @@ It can span multiple lines.</p>
 :   Definition 2b</p>
 <h2 id="images-and-files">Images and Files</h2>
 <h3 id="regular-images">Regular Images</h3>
-<p><img alt="Sample Image" src="https://via.placeholder.com/400x200" />
-<img alt="Alt Text" src="https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image" /></p>
+<p><img alt="Sample Image" src="tests/a_picture.png"/>
+<img alt="Alt Text" src="https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image"/></p>
 <h3 id="images-with-titles">Images with Titles</h3>
-<p><img alt="Sample Image" src="https://via.placeholder.com/400x200" title="This is a title" /></p>
+<p><img alt="Sample Image" src="https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png" title="This is a title"/></p>
 <h3 id="local-files">Local Files</h3>
-<p><img alt="Local Text File" src="requirements.txt" />
-<img alt="Binary File" src="test.pdf" /></p>
+<p><a class="file-path" href="tests/a_readable_file.html">Local Text File</a>
+<a class="file-path" href="tests/a_binary_file.bin">Binary File</a></p>
 <h3 id="reference-style-images">Reference Style Images</h3>
-<p><img alt="Reference Image" src="https://via.placeholder.com/200x100" /></p>
+<p><img alt="Reference Image" src="https://via.placeholder.com/200x100"/></p>
 <h2 id="links-and-references-links-and-references">Links and References {#links-and-references}</h2>
 <h3 id="regular-links">Regular Links</h3>
-<p><a href="https://www.example.com">Regular Link</a>
-<a href="https://www.github.com">Web Preview</a></p>
+<p><a class="web-url" href="https://www.example.com">Regular Link</a>
+<a class="web-url" href="https://www.github.com">Web Preview</a></p>
 <h3 id="automatic-links">Automatic Links</h3>
-<p><a href="https://www.google.com">https://www.google.com</a>
-<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#117;&#115;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#117;&#115;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a></p>
+<p><a class="web-url" href="https://www.google.com">https://www.google.com</a>
+<a class="web-url" href="mailto:user@example.com">user@example.com</a></p>
 <h3 id="reference-style-links">Reference Style Links</h3>
-<p>This is <a href="https://www.example.com" title="Optional Title">a reference link</a> and here's <a href="https://www.stackoverflow.com">another one</a>.</p>
+<p>This is <a class="web-url" href="https://www.example.com" title="Optional Title">a reference link</a> and here's <a class="web-url" href="https://www.stackoverflow.com">another one</a>.</p>
 <h3 id="links-with-titles">Links with Titles</h3>
-<p><a href="https://www.example.com" title="This is a title">Link with Title</a></p>
+<p><a class="web-url" href="https://www.example.com" title="This is a title">Link with Title</a></p>
 <h2 id="advanced-formatting">Advanced Formatting</h2>
 <h3 id="text-formatting">Text Formatting</h3>
 <p><strong>Bold text</strong> and <em>italic text</em> and <strong><em>bold italic</em></strong>.</p>
@@ -661,13 +672,13 @@ It can span multiple lines.</p>
 <p>Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy.
 Use <kbd>Cmd</kbd>+<kbd>V</kbd> on Mac.</p>
 <h3 id="line-breaks">Line Breaks</h3>
-<p>This line ends with two spaces<br />
+<p>This line ends with two spaces<br/>
 And this is a new line.</p>
 <p>This line has a manual line breakUsing backslash.</p>
 <h2 id="horizontal-rules">Horizontal Rules</h2>
-<hr />
-<hr />
-<hr />
+<hr/>
+<hr/>
+<hr/>
 <h2 id="footnotes">Footnotes</h2>
 <p>This text has a footnote[^1]. Here's another footnote[^note].</p>
 <p>[^1]: This is the first footnote.
@@ -678,9 +689,8 @@ And this is a new line.</p>
 <span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>It can even contain code blocks:
 
     def footnote_example():
-        return &quot;footnote&quot;
+        return "footnote"
 </code></pre></div></td></tr></table></div>
-
 <h2 id="math-equations-if-supported">Math Equations (if supported)</h2>
 <p>Inline math: $E = mc^2$</p>
 <p>Block math:
@@ -694,7 +704,6 @@ $$</p>
 <div class="custom-class">
 This is a custom HTML div with markdown **bold** text inside.
 </div>
-
 <details>
 <summary>Click to expand</summary>
 
@@ -705,7 +714,6 @@ This is hidden content that can be expanded.
 - Item 3
 
 </details>
-
 <h2 id="code-spans-and-escaping">Code Spans and Escaping</h2>
 <p>Use <code>backticks</code> for code spans.</p>
 <p>Here's how to escape characters: *not italic* and `not code`.</p>
@@ -721,9 +729,9 @@ Minus: -
 Dot: .
 Exclamation: !</p>
 <h2 id="special-characters-and-entities">Special Characters and Entities</h2>
-<p>Copyright: &copy; 2024
-Trademark: &trade;
-Registered: &reg;
+<p>Copyright: © 2024
+Trademark: ™
+Registered: ®
 Less than: &lt;
 Greater than: &gt;
 Ampersand: &amp;</p>
@@ -745,7 +753,6 @@ Ampersand: &amp;</p>
 <span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|No| D[Debug]</span>
 <span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt; B</span>
 </code></pre></div></td></tr></table></div>
-
 <h2 id="headers-of-all-levels">Headers of All Levels</h2>
 <h1 id="h1-header">H1 Header</h1>
 <h2 id="h2-header">H2 Header</h2>
@@ -762,7 +769,7 @@ Ampersand: &amp;</p>
 <li><strong>Bold text</strong></li>
 <li><em>Italic text</em></li>
 <li><code>Code span</code></li>
-<li><a href="https://example.com">A link</a></li>
+<li><a class="web-url" href="https://example.com">A link</a></li>
 <li>A footnote[^complex]</li>
 </ol>
 <p>```python</p>
@@ -770,7 +777,7 @@ Ampersand: &amp;</p>
 <p>def example():
     return "Hello from blockquote"
 ```</p>
-<table>
+<table class="markdown-table">
 <thead>
 <tr>
 <th>Column 1</th>
@@ -790,7 +797,7 @@ Ampersand: &amp;</p>
 </ul>
 </blockquote>
 <p>[^complex]: This footnote is referenced from within a blockquote.</p>
-<hr />
+<hr/>
 <p><em>End of comprehensive markdown test document.</em></p>
 <p><strong>Total word count:</strong> Approximately 500+ words with comprehensive syntax coverage.</p>
     </div>
