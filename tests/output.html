@@ -581,40 +581,44 @@ details[open] > summary {
 <hr/>
 <h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
 <h3 id="code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello, World!"</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">"success"</span>
 <span class="c1"># This is a comment</span>
 <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h3 id="different-language-examples">Different Language Examples</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">greeting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">const</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
 <span class="p">};</span>
-</code></pre></div></td></tr></table></div>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+</code></pre></div>
+</td></tr></table>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Running deployment script..."</span>
-<span class="nb">cd</span><span class="w"> </span>/var/www/html
-git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</code></pre></div></td></tr></table></div>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span> <span class="s2">"Running deployment script..."</span>
+<span class="nb">cd</span> /var/www/html
+git pull origin main
+</code></pre></div>
+</td></tr></table>
 <h3 id="code-block-without-language">Code Block Without Language</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>Plain text code block
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>Plain text code block
 No syntax highlighting
 Just monospace font
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h2 id="tables-tables">Tables {#tables}</h2>
 <h3 id="basic-table">Basic Table</h3>
 <table class="markdown-table">
@@ -749,8 +753,9 @@ It can span multiple lines.</p>
 <li>This is the second list item.</li>
 </ol>
 <p>Here's some code in a blockquote:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>return shell_exec("echo $input | $markdown_script");
-</code></pre></div></td></tr></table></div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="nv">shell_exec</span><span class="ss">(</span><span class="s2">"</span><span class="s">echo $input | $markdown_script</span><span class="s2">"</span><span class="ss">)</span><span class="c1">;</span>
+</code></pre></div>
+</td></tr></table>
 </blockquote>
 <h2 id="list-examples">List Examples</h2>
 <h3 id="unordered-lists">Unordered Lists</h3>
@@ -836,14 +841,15 @@ And this is a new line.</p>
 <p>This text has a footnote[^1]. Here's another footnote[^note].</p>
 <p>[^1]: This is the first footnote.
 [^note]: This is a longer footnote with multiple lines.</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>It can even contain code blocks:
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nv">It</span> <span class="nv">can</span> <span class="nv">even</span> <span class="nv">contain</span> <span class="nv">code</span> <span class="nv">blocks</span>:
 
-    def footnote_example():
-        return "footnote"
-</code></pre></div></td></tr></table></div>
+    <span class="nv">def</span> <span class="nv">footnote_example</span><span class="ss">()</span>:
+        <span class="k">return</span> <span class="s2">"</span><span class="s">footnote</span><span class="s2">"</span>
+</code></pre></div>
+</td></tr></table>
 <h2 id="math-equations-if-supported">Math Equations (if supported)</h2>
 <p>Inline math: <span class="arithmatex">\(E = mc^2\)</span></p>
 <p>Block math:
@@ -902,16 +908,17 @@ Ampersand: &amp;</p>
 <p>This is a danger alert.</p>
 </div>
 <h2 id="mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</h2>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
-<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; B{Is it working?}</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|Yes| C[Great!]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|No| D[Debug]</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span><span class="w"></span>
+<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="err">{</span><span class="k">Is</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">working</span><span class="vm">?</span><span class="err">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="o">[</span><span class="n">Great!</span><span class="o">]</span><span class="w"></span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="k">No</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="o">[</span><span class="n">Debug</span><span class="o">]</span><span class="w"></span>
 <span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt; B</span>
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h2 id="headers-of-all-levels">Headers of All Levels</h2>
 <h1 id="h1-header">H1 Header</h1>
 <h2 id="h2-header">H2 Header</h2>
@@ -1017,7 +1024,10 @@ function addCopyButtons() {
                     const code = block.querySelector('td.code pre');
                     text = code ? code.innerText : block.innerText;
                 } else if (block.matches('table.markdown-table')) {
-                    text = block.innerText;
+                    // Clone the table and remove all .copy-btn before copying
+                    let temp = block.cloneNode(true);
+                    temp.querySelectorAll('.copy-btn').forEach(btn => btn.remove());
+                    text = temp.innerText;
                 } else if (block.matches('details')) {
                     // Exclude summary and copy button itself
                     let temp = block.cloneNode(true);

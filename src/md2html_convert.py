@@ -51,7 +51,7 @@ class Markdown2HTMLConverter:
 
         self.css_content = f'''
 <style>
-    {self.load_content_from_file("static/mdBlocks.css")}
+    {self.load_content_from_file("static/md-blocks.css")}
 </style>
 '''
         self.js_content_before_body = f'''
@@ -60,7 +60,7 @@ class Markdown2HTMLConverter:
 </script>'''
         self.js_content_after_body = f'''
 <script>
-    {self.load_content_from_file("static/copyBtn.js")}
+    {self.load_content_from_file("static/copy-btn.js")}
 </script>
         '''
     

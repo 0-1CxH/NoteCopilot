@@ -52,7 +52,10 @@ function addCopyButtons() {
                     const code = block.querySelector('td.code pre');
                     text = code ? code.innerText : block.innerText;
                 } else if (block.matches('table.markdown-table')) {
-                    text = block.innerText;
+                    // Clone the table and remove all .copy-btn before copying
+                    let temp = block.cloneNode(true);
+                    temp.querySelectorAll('.copy-btn').forEach(btn => btn.remove());
+                    text = temp.innerText;
                 } else if (block.matches('details')) {
                     // Exclude summary and copy button itself
                     let temp = block.cloneNode(true);
