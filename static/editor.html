@@ -136,13 +136,121 @@
       font-weight: 400;
       user-select: none;
     }
+    /* --- Menu Bar Styles --- */
+    .menu-bar {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 16px 32px 0 32px;
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 2px 16px 0 rgba(99,102,241,0.04);
+      margin-bottom: 8px;
+      animation: menuFadeIn 0.7s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: none; }
+    }
+    .menu-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px 0 rgba(99,102,241,0.04);
+      padding: 6px 10px;
+      transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    .menu-group:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 28px;
+      background: #e2e8f0;
+      margin: 0 14px;
+      border-radius: 2px;
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .menu-btn {
+      background: #f1f5f9;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 13px;
+      font-size: 1.05em;
+      color: #3a4667;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0 2px;
+      box-shadow: 0 1px 4px 0 rgba(99,102,241,0.07);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.13s;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-btn:hover, .menu-btn:focus {
+      background: #ede9fe;
+      color: #4f46e5;
+      box-shadow: 0 2px 8px 0 rgba(99,102,241,0.10);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .menu-btn:active {
+      background: #c7d2fe;
+      color: #3730a3;
+      transform: scale(0.98);
+    }
+    .menu-btn .icon {
+      margin-right: 6px;
+      font-size: 1.1em;
+      vertical-align: middle;
+    }
+    @media (max-width: 900px) {
+      .menu-bar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px 8px 0 8px;
+      }
+      .menu-group {
+        padding: 4px 6px;
+      }
+      .menu-group:not(:last-child)::after {
+        height: 18px;
+        right: -10px;
+      }
+    }
   </style>
   <!-- Marked.js for Markdown parsing (placeholder for backend) -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <div class="header">Split View Markdown Editor</div>
-  <div class="subheader">Write Markdown on the left, see live HTML preview on the right. Fluid, modern, animated.</div>
+  <nav class="menu-bar">
+    <div class="menu-group">
+      <button class="menu-btn" title="Insert Code"><span class="icon">&lt;/&gt;</span>Code</button>
+      <button class="menu-btn" id="insertTableBtn" title="Insert Table"><span class="icon">&#x1F4C1;</span>Table</button>
+      <button class="menu-btn" id="insertTocBtn" title="Insert TOC"><span class="icon">&#x1F4CB;</span>TOC</button>
+      <button class="menu-btn" id="insertQuoteBtn" title="Insert Quote"><span class="icon">&#x275D;</span>Quote</button>
+      <button class="menu-btn" id="insertTodoBtn" title="Insert TODO"><span class="icon">&#x2610;</span>TODO</button>
+      <button class="menu-btn" title="Insert LaTeX"><span class="icon">&#x03A3;</span>LaTeX</button>
+      <button class="menu-btn" title="Insert Detail"><span class="icon">&#x25BC;</span>Detail</button>
+    </div>
+    <div class="menu-group">
+      <button class="menu-btn" title="Bold"><span class="icon"><b>B</b></span></button>
+      <button class="menu-btn" title="Italic"><span class="icon"><i>I</i></span></button>
+      <button class="menu-btn" title="Highlight"><span class="icon">&#x1F4A1;</span></button>
+      <button class="menu-btn" title="Strikethrough"><span class="icon"><s>S</s></span></button>
+      <button class="menu-btn" title="Underline"><span class="icon"><u>U</u></span></button>
+    </div>
+    <div class="menu-group">
+      <button class="menu-btn" title="Export Markdown"><span class="icon">&#x1F4C4;</span>MD</button>
+      <button class="menu-btn" title="Export HTML"><span class="icon">&#x1F4C3;</span>HTML</button>
+      <button class="menu-btn" title="Export PDF"><span class="icon">&#x1F4D1;</span>PDF</button>
+    </div>
+  </nav>
   <div class="split-container" id="splitContainer">
     <div class="pane left">
       <textarea class="editor" id="markdownInput" placeholder="Type your Markdown here..." autofocus></textarea>
@@ -160,7 +268,33 @@
     function showLoading() {
       const doc = htmlPreview.contentDocument;
       doc.open();
-      doc.write('<body style="color:#aaa;font-family:sans-serif;padding:2em;">Converting…</body>');
+      doc.write(`
+        <style>
+          .spinner-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            background: #fff;
+          }
+          .spinner {
+            width: 48px;
+            height: 48px;
+            border: 6px solid #e3e7ed;
+            border-top: 6px solid #3a4667;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+      `);
       doc.close();
     }
     function showError(msg) {
@@ -187,12 +321,64 @@
         doc.open();
         doc.write(data.html);
         doc.close();
+        // --- MathJax typeset trigger ---
+        function tryTypesetMathJax() {
+          const win = htmlPreview.contentWindow;
+          if (win && win.MathJax && typeof win.MathJax.typesetPromise === 'function') {
+            win.MathJax.typesetPromise();
+          } else {
+            setTimeout(tryTypesetMathJax, 60);
+          }
+        }
+        tryTypesetMathJax();
       } catch (e) {
         if (e.name === 'AbortError') return;
         showError(e.message || 'Failed to convert');
       }
     }
     mdInput.addEventListener('input', updatePreview);
+    // Tab inserts 4 spaces in editor
+    mdInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const value = this.value;
+        this.value = value.substring(0, start) + '    ' + value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+        // Trigger input event for live preview
+        this.dispatchEvent(new Event('input'));
+      }
+      // Formatting shortcuts
+      if (e.ctrlKey && !e.altKey && !e.metaKey) {
+        let handled = false;
+        switch (e.key.toLowerCase()) {
+          case 'b': // Bold
+            insertAtCursor(mdInput, '**', '**', 'bold');
+            handled = true;
+            break;
+          case 'i': // Italic
+            insertAtCursor(mdInput, '*', '*', 'italic');
+            handled = true;
+            break;
+          case 'h': // Highlight
+            insertAtCursor(mdInput, '<markdown-hlt>', '</markdown-hlt>', 'highlight');
+            handled = true;
+            break;
+          case 's': // Strikethrough
+            insertAtCursor(mdInput, '~~', '~~', 'strikethrough');
+            handled = true;
+            break;
+          case 'u': // Underline
+            insertAtCursor(mdInput, '<u>', '</u>', 'underline');
+            handled = true;
+            break;
+        }
+        if (handled) {
+          e.preventDefault();
+        }
+      }
+    });
     window.addEventListener('DOMContentLoaded', () => {
       updatePreview();
     });
@@ -302,6 +488,180 @@
     mdInput.addEventListener('scroll', syncPreviewScroll);
     // Also sync after preview updates
     htmlPreview.addEventListener('load', syncPreviewScroll);
+
+    // --- Menu Button Logic ---
+    function insertAtCursor(textarea, before, after = '', placeholder = '') {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      const selected = value.slice(start, end) || placeholder;
+      const newValue = value.slice(0, start) + before + selected + after + value.slice(end);
+      textarea.value = newValue;
+      // Move cursor inside the inserted text
+      const cursorPos = start + before.length + selected.length;
+      textarea.setSelectionRange(cursorPos, cursorPos);
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input'));
+    }
+    function insertBlockAtCursor(textarea, blockText) {
+      const start = textarea.selectionStart;
+      const value = textarea.value;
+      // Insert block at start of line
+      const before = value.lastIndexOf('\n', start - 1) + 1;
+      const after = value.indexOf('\n', start);
+      const newValue = value.slice(0, before) + blockText + '\n' + value.slice(before);
+      textarea.value = newValue;
+      textarea.setSelectionRange(before + blockText.length + 1, before + blockText.length + 1);
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input'));
+    }
+    function downloadFile(filename, content, type = 'text/plain') {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
+    // Menu button event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuBtns = document.querySelectorAll('.menu-btn');
+      const insertTableBtn = document.getElementById('insertTableBtn');
+      const tableBubble = document.getElementById('tableBubble');
+      let bubbleOpen = false;
+      // Position the bubble near the button
+      function showTableBubble() {
+        const rect = insertTableBtn.getBoundingClientRect();
+        tableBubble.style.display = 'flex';
+        tableBubble.style.left = (rect.left + window.scrollX) + 'px';
+        tableBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        bubbleOpen = true;
+        // Focus first input
+        setTimeout(() => document.getElementById('tableRows').focus(), 50);
+      }
+      function hideTableBubble() {
+        tableBubble.style.display = 'none';
+        bubbleOpen = false;
+      }
+      insertTableBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (bubbleOpen) {
+          hideTableBubble();
+        } else {
+          showTableBubble();
+        }
+      });
+      // Insert table on button click
+      document.getElementById('tableInsertBtn').addEventListener('click', () => {
+        const rows = Math.max(1, Math.min(20, parseInt(document.getElementById('tableRows').value) || 2));
+        const cols = Math.max(1, Math.min(10, parseInt(document.getElementById('tableCols').value) || 2));
+        // Build header
+        let header = '|';
+        let sep = '|';
+        for (let c = 0; c < cols; c++) {
+          header += ` Header ${c+1} |`;
+          sep += ' --- |';
+        }
+        let body = '';
+        for (let r = 0; r < rows; r++) {
+          let row = '|';
+          for (let c = 0; c < cols; c++) {
+            row += ` Cell |`;
+          }
+          body += row + '\n';
+        }
+        const tableText = `${header}\n${sep}\n${body}`.trim();
+        insertBlockAtCursor(mdInput, tableText);
+        hideTableBubble();
+      });
+      // Hide bubble on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (bubbleOpen && !tableBubble.contains(e.target) && e.target !== insertTableBtn) {
+          hideTableBubble();
+        }
+      });
+      // Hide bubble on scroll or resize
+      window.addEventListener('scroll', hideTableBubble);
+      window.addEventListener('resize', hideTableBubble);
+      menuBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
+          const title = btn.title;
+          switch (title) {
+            case 'Insert Code':
+              insertBlockAtCursor(mdInput, '```\ncode here\n```');
+              break;
+            case 'Insert LaTeX':
+              insertBlockAtCursor(mdInput, '$$\nE = mc^2\n$$');
+              break;
+            case 'Insert Detail':
+              insertBlockAtCursor(mdInput, '<details open>\n<summary>Details</summary>\n<p>More info here.</p>\n</details>');
+              break;
+            case 'Bold':
+              insertAtCursor(mdInput, '**', '**', 'bold');
+              break;
+            case 'Italic':
+              insertAtCursor(mdInput, '*', '*', 'italic');
+              break;
+            case 'Highlight':
+              insertAtCursor(mdInput, '<markdown-hlt>', '</markdown-hlt>', 'highlight');
+              break;
+            case 'Strikethrough':
+              insertAtCursor(mdInput, '~~', '~~', 'strikethrough');
+              break;
+            case 'Underline':
+              insertAtCursor(mdInput, '<u>', '</u>', 'underline');
+              break;
+            case 'Export Markdown':
+              downloadFile('note.md', mdInput.value, 'text/markdown');
+              break;
+            case 'Export HTML':
+              // Get HTML from preview iframe
+              try {
+                const doc = htmlPreview.contentDocument;
+                const html = doc.documentElement.outerHTML;
+                downloadFile('note.html', html, 'text/html');
+              } catch (e) {
+                alert('Preview not ready');
+              }
+              break;
+            case 'Export PDF':
+              // Print the preview iframe
+              try {
+                htmlPreview.contentWindow.focus();
+                htmlPreview.contentWindow.print();
+              } catch (e) {
+                alert('Preview not ready');
+              }
+              break;
+            case 'Insert TOC':
+              insertBlockAtCursor(mdInput, '[TOC]');
+              break;
+            case 'Insert Quote':
+              insertBlockAtCursor(mdInput, '> quote here');
+              break;
+            case 'Insert TODO':
+              insertBlockAtCursor(mdInput, '- [ ] TODO item');
+              break;
+          }
+        });
+      });
+    });
   </script>
+  <!-- Table Insert Bubble -->
+  <div id="tableBubble" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:16px 18px;gap:10px;flex-direction:column;min-width:180px;">
+    <div style="margin-bottom:8px;font-weight:500;color:#3a4667;">Insert Table</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <label for="tableRows" style="font-size:0.98em;">Rows:</label>
+      <input id="tableRows" type="number" min="1" max="20" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+      <label for="tableCols" style="font-size:0.98em;">Cols:</label>
+      <input id="tableCols" type="number" min="1" max="10" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+    </div>
+    <button id="tableInsertBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:1em;cursor:pointer;">Insert</button>
+  </div>
 </body>
 </html> 
