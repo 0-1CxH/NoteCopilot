@@ -49,9 +49,20 @@ class Markdown2HTMLConverter:
             extension_configs=self.extension_configs
         )
 
-        self.css_content = self.load_content_from_file("static/mdBlocks.css")
-        self.latex_script = '<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>'
-        self.js_content = self.load_content_from_file("static/copyBtn.js")
+        self.css_content = f'''
+<style>
+    {self.load_content_from_file("static/mdBlocks.css")}
+</style>
+'''
+        self.js_content_before_body = f'''
+<script>
+    {self.load_content_from_file("static/tex-mml-chtml.js")}
+</script>'''
+        self.js_content_after_body = f'''
+<script>
+    {self.load_content_from_file("static/copyBtn.js")}
+</script>
+        '''
     
     def load_content_from_file(self, css_file):
         assert os.path.exists(css_file)
@@ -73,19 +84,15 @@ class Markdown2HTMLConverter:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML</title>
-    <style>
-        {self.css_content}
-    </style>
-    {self.latex_script}
+    {self.css_content}
+    {self.js_content_before_body}
 </head>
 <body>
     <div class="content">
         {html_content}
     </div>
-    <script>
-    {self.js_content}
-    </script>
 </body>
+    {self.js_content_after_body}
 </html>"""
     
     def post_process_html(self, html_content):

@@ -256,12 +256,14 @@ This is a custom HTML div with markdown **bold** text inside.
 
 <details>
 <summary>Click to expand</summary>
-
-This is hidden content that can be expanded.
-
-- Item 1
-- Item 2
-- Item 3
+<div class="content">
+<p>This is hidden content that can be expanded.</p>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+    
 
 </details>
 
