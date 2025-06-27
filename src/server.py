@@ -57,8 +57,9 @@ class NoteCopilotServer:
 
     def ai_mock(self):
         import time
-        time.sleep(1)
+        time.sleep(3)
         data = request.get_json()
+        print(data)
         def generate():
             # Simulate streaming chunks
             for word in [
@@ -66,7 +67,7 @@ class NoteCopilotServer:
                 "<p>", f"### {data.get('query')} ###", "this is ", "a ", "streamed ", "response.",
                 f"</p><p> {data['content']} </p></details>"]:
                 yield word
-                time.sleep(0.4)
+                time.sleep(2)
         return Response(generate(), mimetype='text/plain')
 
     def save_md_file(self):

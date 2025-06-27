@@ -339,6 +339,25 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+    @keyframes frozenPulse {
+       0% { box-shadow: 0 0 0 0 rgba(79,70,229,0.10); }
+       50% { box-shadow: 0 0 12px 4px rgba(79,70,229,0.18); }
+       100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.10); }
+       0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.25); }
+       50% { box-shadow: 0 0 18px 8px rgba(99,102,241,0.45); }
+       100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.25); }
+    }
+    .editor-frozen {
+       background: #f3f3fa !important;
+       opacity: 0.88;
+       animation: frozenPulse 1.2s infinite;
+       transition: background 0.3s, opacity 0.3s;
+       background: #e0e7ff !important;
+       opacity: 0.92;
+       animation: frozenPulse 1.2s infinite;
+       transition: background 0.3s, opacity 0.3s;
+       position: relative;
+    }
   </style>
 
 </head>
@@ -361,7 +380,7 @@
       <button class="menu-btn" title="Bold"><span class="icon"><b>B</b></span></button>
       <button class="menu-btn" title="Italic"><span class="icon"><i>I</i></span></button>
       <button class="menu-btn" title="Highlight"><span class="fas fa-highlighter"></span></button>
-      <button class="menu-btn" title="Strikethrough"><span class="icon"><s>S</s></span></button>
+      <button class="menu-btn" title="Strikethrough"><span class="icon"> S</span></button>
       <button class="menu-btn" title="Underline"><span class="icon"><u>U</u></span></button>
     </div>
     <div class="menu-group">
@@ -384,6 +403,9 @@
         </div>
       </div>
     </div>
+    <div class="menu-group" style="margin-left:auto;">
+      <button class="menu-btn" id="helpBtn" title="Help"><span class="fas fa-question-circle"></span></button>
+    </div>
   </nav>
   <div class="split-container" id="splitContainer">
     <div class="pane left">
@@ -394,11 +416,99 @@
       <iframe class="preview" id="htmlPreview" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
     </div>
   </div>
+  <!-- Table Insert Bubble -->
+  <div id="tableBubble" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:16px 18px;gap:10px;flex-direction:column;min-width:180px;">
+    <div style="margin-bottom:8px;font-weight:500;color:#3a4667;">Insert Table</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <label for="tableRows" style="font-size:0.98em;">Rows:</label>
+      <input id="tableRows" type="number" min="1" max="20" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+      <label for="tableCols" style="font-size:0.98em;">Cols:</label>
+      <input id="tableCols" type="number" min="1" max="10" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+    </div>
+    <button id="tableInsertBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:1em;cursor:pointer;">Insert</button>
+  </div>
+  <!-- File List Modal -->
+  <div id="fileListModal" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Load From</div>
+    <ul id="fileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+  </div>
+  <!-- Save Bubble Modal -->
+  <div id="saveBubble" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Save To</div>
+    <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+  <!-- Ask Bubble Modal -->
+  <div id="askBubble" style="display:none;position:absolute;z-index:2000;min-width:260px;max-width:95vw;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:12px;padding:18px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:12px;color:#3a4667;padding:0 18px;">Ask Copilot</div>
+    <div id="askFuncCards" style="display:flex;flex-wrap:wrap;gap:12px 8px;padding:0 18px 10px 18px;"></div>
+    <div style="display:flex;gap:8px;padding:0 18px 8px 18px;align-items:center;border-top: 2px dashed #4f46e5;padding-top: 8px;">
+      <textarea id="askQueryInput" rows="5" placeholder="Type your question..." style="flex:1;padding:7px 12px;border:1.5px solid #ede9fe;border-radius:7px;font-size:1em;font-family:inherit;background:#fff;color:#4f46e5;resize:vertical;min-height:38px;max-height:120px;line-height:1.4;"></textarea>
+      <button id="askSubmitBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:1em;cursor:pointer;align-self:flex-end;height:38px;"></button>
+    </div>
+  </div>
+  <!-- Help Modal -->
+  <div id="helpModal" style="display:none;position:fixed;z-index:3000;left:0;top:0;width:100vw;height:100vh;background:rgba(60,72,100,0.13);backdrop-filter:blur(1.5px);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 4px 32px 0 rgba(60,72,100,0.18);padding:32px 32px 24px 32px;max-width:98vw;width:400px;position:relative;">
+      <div style="font-size:1.3em;font-weight:700;color:#3a4667;margin-bottom:18px;text-align:center;">Help</div>
+      <ul style="list-style:none;padding:0;margin:0 0 8px 0;font-size:1.08em;color:#3a4667;">
+      <!-- INSERT_YOUR_CODE -->
+      <li style="margin-bottom:10px;">
+        <b>AI Features</b>
+        <ul style="margin-top:6px;margin-bottom:6px;">
+          <li><b>Completion</b>: Select text or place the cursor, then click the <b>Completion</b> (<span class="fas fa-magic"></span>) button or press <b>Ctrl+Q</b>. AI will continue or complete your text.</li>
+          
+          <li><b>Ask Copilot</b>: Select text or place the cursor, then click the <b>Ask</b> (<span class="fas fa-brain"></span>) button or press <b>Ctrl+Q</b>, select the prompt template and type your query. AI will answer your query. Note: when typin query, use <b>Shift+Enter</b> for new line and <b>Enter</b> for submitting the query.</li>
+        </ul>
+      </li>
+      <li style="margin-bottom:10px;">
+        <b>Keyboard Shortcuts</b>
+        <table style="width:100%;font-size:0.98em;border-collapse:collapse;">
+          <tbody>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+B</b></td><td style="padding:2px 8px;">Bold</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+I</b></td><td style="padding:2px 8px;">Italic</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+H</b></td><td style="padding:2px 8px;">Highlight</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+S</b></td><td style="padding:2px 8px;">Save</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+L</b></td><td style="padding:2px 8px;">Load</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+M</b></td><td style="padding:2px 8px;">Export Markdown</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+N</b></td><td style="padding:2px 8px;">Export HTML</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+W</b></td><td style="padding:2px 8px;">Ask Copilot (AI)</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Ctrl+Q</b></td><td style="padding:2px 8px;">Completion (AI)</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Tab</b></td><td style="padding:2px 8px;">Indent</td></tr>
+            <tr><td style="padding:2px 8px;"><b>Shift+Tab</b></td><td style="padding:2px 8px;">Unindent</td></tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <b>Other Tips</b>
+        <ul style="margin-top:6px;">
+          <li>Use the <b>Insert</b> buttons above the editor to quickly add tables, code blocks, LaTeX, and more.</li>
+          <li>Click outside this window or press <b>Esc</b> to close Help.</li>
+        </ul>
+      </li>
+      </ul>
+      <div style="color:#7a869a;font-size:0.98em;text-align:center;">Click outside or press <b>Esc</b> to close</div>
+      <button id="closeHelpModal" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.3em;color:#7a869a;cursor:pointer;"><span class="fas fa-times"></span></button>
+    </div>
+  </div>
   <script>
     // Live preview logic using backend
     const mdInput = document.getElementById('markdownInput');
     const htmlPreview = document.getElementById('htmlPreview');
     let lastController = null;
+    let editorFrozen = false;
+
+    // Helper to freeze/unfreeze editor
+    function freezeEditor() {
+      editorFrozen = true;
+      mdInput.classList.add('editor-frozen');
+    }
+    function unfreezeEditor() {
+      editorFrozen = false;
+      mdInput.classList.remove('editor-frozen');
+    }
+
     function showLoading() {
       const doc = htmlPreview.contentDocument;
       doc.open();
@@ -473,6 +583,24 @@
     mdInput.addEventListener('input', updatePreview);
     // Tab inserts 4 spaces in editor
     mdInput.addEventListener('keydown', function(e) {
+      if (editorFrozen) {
+        // Allow navigation, selection, copy, paste, but block typing and editing
+        const allowed = [
+          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+          'Shift', 'Control', 'Meta', 'Alt', 'Tab',
+          'PageUp', 'PageDown', 'Home', 'End',
+          'Escape', 'CapsLock', 'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
+        ];
+        if (
+          allowed.includes(e.key) ||
+          (e.ctrlKey && ['a','c','x','v','z','y'].includes(e.key.toLowerCase())) // allow ctrl/cmd+A/C/X/V/Z/Y
+        ) {
+          // allow
+        } else {
+          e.preventDefault();
+        }
+        return;
+      }
       if (e.key === 'Tab') {
         e.preventDefault();
         const start = this.selectionStart;
@@ -497,14 +625,6 @@
             break;
           case 'h': // Highlight
             insertAtCursor(mdInput, '==', '==', 'highlight');
-            handled = true;
-            break;
-          case 's': // Strikethrough
-            insertAtCursor(mdInput, '~~', '~~', 'strikethrough');
-            handled = true;
-            break;
-          case 'u': // Underline
-            insertAtCursor(mdInput, '<u>', '</u>', 'underline');
             handled = true;
             break;
         }
@@ -662,6 +782,29 @@
         URL.revokeObjectURL(url);
       }, 100);
     }
+    // Save last used filename in localStorage
+    function setLastUsedFile(filename) {
+        localStorage.setItem('lastUsedFile', filename);
+      }
+    function getLastUsedFile() {
+      return localStorage.getItem('lastUsedFile') || '';
+    }
+    // Delete lastUsedFile on page refresh
+    window.addEventListener('load', function() {
+      localStorage.removeItem('lastUsedFile');
+    });
+    
+    // --- Toast Notification Logic ---
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show toast-' + type;
+      // Remove after 10s
+      if (toast.toastTimeout) clearTimeout(toast.toastTimeout);
+      toast.toastTimeout = setTimeout(() => {
+        toast.className = 'toast';
+      }, 10000);
+    }
     // Menu button event listeners
     document.addEventListener('DOMContentLoaded', () => {
       const menuBtns = document.querySelectorAll('.menu-btn');
@@ -723,13 +866,7 @@
       window.addEventListener('scroll', hideTableBubble);
       window.addEventListener('resize', hideTableBubble);
 
-      // Save last used filename in localStorage
-      function setLastUsedFile(filename) {
-        localStorage.setItem('lastUsedFile', filename);
-      }
-      function getLastUsedFile() {
-        return localStorage.getItem('lastUsedFile') || '';
-      }
+      
 
       // Export dropdown logic
       const exportDropdownBtn = document.getElementById('exportDropdownBtn');
@@ -944,17 +1081,7 @@
       window.addEventListener('scroll', hideSaveBubble);
       window.addEventListener('resize', hideSaveBubble);
       
-      // --- Toast Notification Logic ---
-      function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'toast show toast-' + type;
-        // Remove after 10s
-        if (toast.toastTimeout) clearTimeout(toast.toastTimeout);
-        toast.toastTimeout = setTimeout(() => {
-          toast.className = 'toast';
-        }, 10000);
-      }
+      
       // Save button click logic
       saveBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -1052,17 +1179,15 @@
       const askBtn = document.getElementById('askBtn');
       const COMPLETION_TYPE = 'completion';
       completionBtn.addEventListener('click', async () => {
-        const selected = mdInput.value.slice(mdInput.selectionStart, mdInput.selectionEnd);
-        const content = selected || mdInput.value;
-        // if (!content) {
-        //   alert('Please select or enter some text for AI.');
-        //   return;
-        // }
-        // Show loading indicator in editor
-        const oldValue = mdInput.value;
+        freezeEditor();
         const start = mdInput.selectionStart;
         const end = mdInput.selectionEnd;
-        const loadingText = '\n> AI is thinking...\n';
+        const selected = mdInput.value.slice(start, end);
+        // If no selection, use content before cursor
+        const content = selected || mdInput.value.slice(0, start);
+        // Show loading indicator in editor
+        const oldValue = mdInput.value;
+        const loadingText = '\n!!!note\n    AI is thinking...\n';
         let loadingStart, loadingEnd;
         if (selected) {
           // Insert loading text after selection
@@ -1070,10 +1195,10 @@
           loadingStart = start + selected.length;
           loadingEnd = loadingStart + loadingText.length;
         } else {
-          // Insert loading text at the end
-          mdInput.setRangeText(loadingText, mdInput.value.length, mdInput.value.length, 'end');
-          loadingStart = mdInput.value.length - loadingText.length;
-          loadingEnd = mdInput.value.length;
+          // Insert loading text at the cursor position
+          mdInput.setRangeText(loadingText, start, start, 'end');
+          loadingStart = start;
+          loadingEnd = start + loadingText.length;
         }
         mdInput.setSelectionRange(loadingEnd, loadingEnd);
         mdInput.dispatchEvent(new Event('input'));
@@ -1111,177 +1236,241 @@
           mdInput.dispatchEvent(new Event('input'));
           showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
         }
+        unfreezeEditor();
       });
       
-    });
-  </script>
-  <!-- Table Insert Bubble -->
-  <div id="tableBubble" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:16px 18px;gap:10px;flex-direction:column;min-width:180px;">
-    <div style="margin-bottom:8px;font-weight:500;color:#3a4667;">Insert Table</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <label for="tableRows" style="font-size:0.98em;">Rows:</label>
-      <input id="tableRows" type="number" min="1" max="20" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
-      <label for="tableCols" style="font-size:0.98em;">Cols:</label>
-      <input id="tableCols" type="number" min="1" max="10" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
-    </div>
-    <button id="tableInsertBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:1em;cursor:pointer;">Insert</button>
-  </div>
-  <!-- File List Modal -->
-  <div id="fileListModal" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
-    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Load From</div>
-    <ul id="fileList" style="list-style:none;padding:0 0 0 0;margin:0;">
-      <!-- Files will be populated here -->
-    </ul>
-    <!-- Close button removed -->
-  </div>
-  <!-- Save Bubble Modal -->
-  <div id="saveBubble" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
-    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Save To</div>
-    <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
-  </div>
-  <!-- Toast Notification -->
-  <div id="toast" class="toast"></div>
-  <!-- Ask Bubble Modal -->
-  <div id="askBubble" style="display:none;position:absolute;z-index:2000;min-width:260px;max-width:95vw;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:12px;padding:18px 0;">
-    <div style="font-size:1.08em;font-weight:600;margin-bottom:12px;color:#3a4667;padding:0 18px;">Ask Copilot</div>
-    <div id="askFuncCards" style="display:flex;flex-wrap:wrap;gap:12px 8px;padding:0 18px 10px 18px;"></div>
-    <div style="display:flex;gap:8px;padding:0 18px 8px 18px;align-items:center;border-top: 2px dashed #4f46e5;padding-top: 8px;">
-      <textarea id="askQueryInput" rows="5" placeholder="Type your question..." style="flex:1;padding:7px 12px;border:1.5px solid #ede9fe;border-radius:7px;font-size:1em;font-family:inherit;background:#fff;color:#4f46e5;resize:vertical;min-height:38px;max-height:120px;line-height:1.4;"></textarea>
-      <button id="askSubmitBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:1em;cursor:pointer;align-self:flex-end;height:38px;">Ask</button>
-    </div>
-  </div>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const askBtn = document.getElementById('askBtn');
-    const askBubble = document.getElementById('askBubble');
-    const askFuncCards = document.getElementById('askFuncCards');
-    const askQueryInput = document.getElementById('askQueryInput');
-    const askSubmitBtn = document.getElementById('askSubmitBtn');
-    let askBubbleOpen = false;
-    let selectedFunc = null;
-    function showAskBubble() {
-      const rect = askBtn.getBoundingClientRect();
-      askBubble.style.display = 'block';
-      askBubble.style.left = (rect.left + window.scrollX) + 'px';
-      askBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
-      askBubbleOpen = true;
-      askQueryInput.focus();
-    }
-    function hideAskBubble() {
-      askBubble.style.display = 'none';
-      askBubbleOpen = false;
-      selectedFunc = null;
-    }
-    askBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      if (askBubbleOpen) {
-        hideAskBubble();
-        return;
+      // --- Second block content ---
+      const askBubble = document.getElementById('askBubble');
+      const askFuncCards = document.getElementById('askFuncCards');
+      const askQueryInput = document.getElementById('askQueryInput');
+      const askSubmitBtn = document.getElementById('askSubmitBtn');
+      let askBubbleOpen = false;
+      let selectedFunc = null;
+      function showAskBubble() {
+        const rect = askBtn.getBoundingClientRect();
+        askBubble.style.display = 'block';
+        askBubble.style.left = (rect.left + window.scrollX) + 'px';
+        askBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        askBubbleOpen = true;
+        askQueryInput.focus();
       }
-      askFuncCards.innerHTML = '<div style="color:#888;font-size:0.98em;">Loading...</div>';
-      showAskBubble();
-      try {
-        const resp = await fetch('/funcs');
-        if (!resp.ok) throw new Error('Failed to fetch functions');
-        const data = await resp.json();
-        const funcs = data.funcs || [];
-        askFuncCards.innerHTML = '';
-        funcs.forEach(func => {
-          const card = document.createElement('div');
-          card.className = 'ask-func-card';
-          card.style.cssText = 'flex:1 1 120px;min-width:110px;max-width:180px;background:#f8fafc;border:1.5px solid #ede9fe;border-radius:8px;padding:10px 10px 8px 10px;cursor:pointer;transition:box-shadow 0.2s,border 0.2s;display:flex;flex-direction:column;gap:4px;align-items:flex-start;';
-          card.innerHTML = `<span class="${func.icon}" style="color:#4f46e5;font-size:1.3em;margin-bottom:2px;"></span><div style="font-weight:600;font-size:1em;color:#3a4667;">${func.name}</div><div style="font-size:0.97em;color:#7a869a;">${func.description}</div>`;
-          card.addEventListener('click', () => {
-            selectedFunc = func.name;
-            askQueryInput.value += ` ${func.template} `;
-            askQueryInput.focus();
-            // Highlight selected
-            askFuncCards.querySelectorAll('.ask-func-card').forEach(c => c.style.border = '1.5px solid #ede9fe');
-            card.style.border = '2.5px solid #4f46e5';
-          });
-          askFuncCards.appendChild(card);
-        });
-      } catch (e) {
-        askFuncCards.innerHTML = '<div style="color:#e53e3e;font-size:0.98em;">Error: ' + e.message + '</div>';
+      function hideAskBubble() {
+        askBubble.style.display = 'none';
+        askBubbleOpen = false;
+        selectedFunc = null;
       }
-    });
-    // Hide on outside click
-    document.addEventListener('mousedown', (e) => {
-      if (askBubbleOpen && !askBubble.contains(e.target) && e.target !== askBtn) {
-        hideAskBubble();
-      }
-    });
-    window.addEventListener('scroll', hideAskBubble);
-    window.addEventListener('resize', hideAskBubble);
-    // Submit logic
-    askSubmitBtn.addEventListener('click', async () => {
-      const selected = mdInput.value.slice(mdInput.selectionStart, mdInput.selectionEnd);
-      const content = selected || mdInput.value;
-      const query = askQueryInput.value.trim();
-      // if (!content && !query) {
-      //   alert('Please select or enter some text for AI.');
-      //   return;
-      // }
-      hideAskBubble();
-      // Insert loading text as in autoCompletionRequest
-      const oldValue = mdInput.value;
-      const start = mdInput.selectionStart;
-      const end = mdInput.selectionEnd;
-      const loadingText = '\n> AI is thinking...\n';
-      let loadingStart, loadingEnd;
-      if (selected) {
-        mdInput.setRangeText(selected + loadingText, start, end, 'end');
-        loadingStart = start + selected.length;
-        loadingEnd = loadingStart + loadingText.length;
-      } else {
-        mdInput.setRangeText(loadingText, mdInput.value.length, mdInput.value.length, 'end');
-        loadingStart = mdInput.value.length - loadingText.length;
-        loadingEnd = mdInput.value.length;
-      }
-      mdInput.setSelectionRange(loadingEnd, loadingEnd);
-      mdInput.dispatchEvent(new Event('input'));
-      try {
-        const resp = await fetch('/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'ask', content, query })
-        });
-        if (!resp.ok) throw new Error('AI request failed');
-        const reader = resp.body.getReader();
-        let aiText = '';
-        let decoder = new TextDecoder();
-        let currentLoadingStart = loadingStart;
-        let currentLoadingEnd = loadingEnd;
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          aiText += decoder.decode(value, { stream: true });
-          const valueBefore = mdInput.value.slice(0, currentLoadingStart);
-          const valueAfter = mdInput.value.slice(currentLoadingEnd);
-          mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
-          currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1;
-          mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
-          mdInput.dispatchEvent(new Event('input'));
+      askBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (askBubbleOpen) {
+          hideAskBubble();
+          return;
         }
-      } catch (e) {
-        const valueBefore = mdInput.value.slice(0, loadingStart);
-        const valueAfter = mdInput.value.slice(loadingEnd);
-        mdInput.value = valueBefore + valueAfter;
-        mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
+        askFuncCards.innerHTML = '<div style="color:#888;font-size:0.98em;">Loading...</div>';
+        showAskBubble();
+        try {
+          const resp = await fetch('/funcs');
+          if (!resp.ok) throw new Error('Failed to fetch functions');
+          const data = await resp.json();
+          const funcs = data.funcs || [];
+          askFuncCards.innerHTML = '';
+          funcs.forEach(func => {
+            const card = document.createElement('div');
+            card.className = 'ask-func-card';
+            card.style.cssText = 'flex:1 1 120px;min-width:110px;max-width:180px;background:#f8fafc;border:1.5px solid #ede9fe;border-radius:8px;padding:10px 10px 8px 10px;cursor:pointer;transition:box-shadow 0.2s,border 0.2s;display:flex;flex-direction:column;gap:4px;align-items:flex-start;';
+            card.innerHTML = `<span class="${func.icon}" style="color:#4f46e5;font-size:1.3em;margin-bottom:2px;"></span><div style="font-weight:600;font-size:1em;color:#3a4667;">${func.name}</div><div style="font-size:0.97em;color:#7a869a;">${func.description}</div>`;
+            card.addEventListener('click', () => {
+              selectedFunc = func.name;
+              askQueryInput.value += ` ${func.template} `;
+              askQueryInput.focus();
+              // Highlight selected
+              askFuncCards.querySelectorAll('.ask-func-card').forEach(c => c.style.border = '1.5px solid #ede9fe');
+              card.style.border = '2.5px solid #4f46e5';
+            });
+            askFuncCards.appendChild(card);
+          });
+        } catch (e) {
+          askFuncCards.innerHTML = '<div style="color:#e53e3e;font-size:0.98em;">Error: ' + e.message + '</div>';
+        }
+      });
+      // Hide on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (askBubbleOpen && !askBubble.contains(e.target) && e.target !== askBtn) {
+          hideAskBubble();
+        }
+      });
+      window.addEventListener('scroll', hideAskBubble);
+      window.addEventListener('resize', hideAskBubble);
+      // Submit logic
+      askSubmitBtn.addEventListener('click', async () => {
+        freezeEditor();
+        const start = mdInput.selectionStart;
+        const end = mdInput.selectionEnd;
+        const selected = mdInput.value.slice(start, end);
+        // If no selection, use content before cursor
+        const content = selected || mdInput.value.slice(0, start);
+        const query = askQueryInput.value.trim();
+        hideAskBubble();
+        // Insert loading text as in autoCompletionRequest
+        const oldValue = mdInput.value;
+        const loadingText = '\n!!!note\n    AI is thinking...\n';
+        let loadingStart, loadingEnd;
+        if (selected) {
+          mdInput.setRangeText(selected + loadingText, start, end, 'end');
+          loadingStart = start + selected.length;
+          loadingEnd = loadingStart + loadingText.length;
+        } else {
+          mdInput.setRangeText(loadingText, start, start, 'end');
+          loadingStart = start;
+          loadingEnd = start + loadingText.length;
+        }
+        mdInput.setSelectionRange(loadingEnd, loadingEnd);
         mdInput.dispatchEvent(new Event('input'));
-        showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
+        try {
+          const resp = await fetch('/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'ask', content, query })
+          });
+          if (!resp.ok) throw new Error('AI request failed');
+          const reader = resp.body.getReader();
+          let aiText = '';
+          let decoder = new TextDecoder();
+          let currentLoadingStart = loadingStart;
+          let currentLoadingEnd = loadingEnd;
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            aiText += decoder.decode(value, { stream: true });
+            const valueBefore = mdInput.value.slice(0, currentLoadingStart);
+            const valueAfter = mdInput.value.slice(currentLoadingEnd);
+            mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
+            currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1;
+            mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
+            mdInput.dispatchEvent(new Event('input'));
+          }
+        } catch (e) {
+          const valueBefore = mdInput.value.slice(0, loadingStart);
+          const valueAfter = mdInput.value.slice(loadingEnd);
+          mdInput.value = valueBefore + valueAfter;
+          mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
+          mdInput.dispatchEvent(new Event('input'));
+          showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
+        }
+        unfreezeEditor();
+      });
+      askQueryInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          askSubmitBtn.click();
+        }
+        // Shift+Enter inserts a new line (default behavior for textarea)
+      });
+      // Set Ask submit button to up arrow icon
+      askSubmitBtn.innerHTML = '<span class="fas fa-arrow-up"></span>';
+      // Help button/modal logic
+      const helpBtn = document.getElementById('helpBtn');
+      const helpModal = document.getElementById('helpModal');
+      const closeHelpModal = document.getElementById('closeHelpModal');
+      helpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        helpModal.style.display = 'flex';
+      });
+      closeHelpModal.addEventListener('click', () => {
+        helpModal.style.display = 'none';
+      });
+      helpModal.addEventListener('mousedown', (e) => {
+        if (e.target === helpModal) helpModal.style.display = 'none';
+      });
+      document.addEventListener('keydown', (e) => {
+        if (helpModal.style.display === 'flex' && e.key === 'Escape') {
+          helpModal.style.display = 'none';
+        }
+      });
+    });
+
+    function fastSave() {
+      const filename = getLastUsedFile();
+      if (!filename || typeof filename !== 'string' || !filename.trim()) {
+        return false;
+      }
+      fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, content: mdInput.value })
+      }).then(resp => {
+        if (!resp.ok) throw new Error('Failed to save file');
+        showToast('File saved!', 'success');
+        return true;
+      }).catch(e => {
+        showToast('Error saving file: ' + (e.message || 'Unknown error'), 'error');
+      });
+    }
+
+    // --- AUTOSAVE every 60 seconds ---
+    setInterval(fastSave, 60000);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && !e.altKey && !e.metaKey) {
+        let handled = false;
+        switch (e.key.toLowerCase()) {
+          case 's': // Save
+            if (fastSave()==false) {
+              console.log("here")
+              const saveBtn = document.getElementById('saveBtn');
+              if (saveBtn) saveBtn.click();
+            }
+            handled = true;
+            break;
+          case 'l': // Load
+            const loadBtn = document.getElementById('loadBtn');
+            if (loadBtn) loadBtn.click();
+            handled = true;
+            break;
+          case 'm': // Export Markdown
+            const exportMdBtn = document.getElementById('exportMdBtn');
+            // Open export dropdown if not visible
+            const exportDropdownMenu = document.getElementById('exportDropdownMenu');
+            const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+            if (exportMdBtn && exportDropdownMenu && exportDropdownBtn) {
+              if (exportDropdownMenu.style.display !== 'block') {
+                exportDropdownBtn.click();
+                setTimeout(() => exportMdBtn.click(), 10);
+              } else {
+                exportMdBtn.click();
+              }
+            }
+            handled = true;
+            break;
+          case 'n': // Export HTML
+            const exportHtmlBtn = document.getElementById('exportHtmlBtn');
+            const exportDropdownMenu2 = document.getElementById('exportDropdownMenu');
+            const exportDropdownBtn2 = document.getElementById('exportDropdownBtn');
+            if (exportHtmlBtn && exportDropdownMenu2 && exportDropdownBtn2) {
+              if (exportDropdownMenu2.style.display !== 'block') {
+                exportDropdownBtn2.click();
+                setTimeout(() => exportHtmlBtn.click(), 10);
+              } else {
+                exportHtmlBtn.click();
+              }
+            }
+            handled = true;
+            break;
+          case 'w': // Ask
+            const askBtn = document.getElementById('askBtn');
+            if (askBtn) askBtn.click();
+            handled = true;
+            break;
+          case 'q': // Completion
+            const completionBtn = document.getElementById('completionBtn');
+            if (completionBtn) completionBtn.click();
+            handled = true;
+            break;
+        }
+        if (handled) {
+          e.preventDefault();
+        }
       }
     });
-    askQueryInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        askSubmitBtn.click();
-      }
-      // Shift+Enter inserts a new line (default behavior for textarea)
-    });
-    // Set Ask submit button to up arrow icon
-    askSubmitBtn.innerHTML = '<span class="fas fa-arrow-up"></span>';
-  });
   </script>
 </body>
 </html> 
