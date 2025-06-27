@@ -6,360 +6,414 @@
     <title>Markdown to HTML</title>
     
 <style>
-    body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.7;
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 32px 20px 32px 20px;
-    color: #23272f;
-    background: linear-gradient(120deg, #f8fafc 0%, #f1f5f9 100%);
-    transition: background 0.4s cubic-bezier(.4,0,.2,1);
+    :root {
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --text-muted: #999;
+  --accent: #0066cc;
+  --accent-light: #e6f2ff;
+  --border: #e5e5e5;
+  --quote-border: #cbd5e1; 
+  --surface: #fafafa;
+  --surface-elevated: #fff;
+  --info: #38bdf8;
+  --warning: #ff6b35;
+  --danger: #e11d48;
+  --success: #00c851;
+  --code-bg: #f3f6fa;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', Consolas, monospace;
+  --radius: 6px;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --code-font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--surface);
+  margin: 0;
+  padding: var(--space-md);
+  max-width: 80%;
+  margin-inline: auto;
 }
 
 .markdown-content {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.04);
-    padding: 32px 28px;
-    margin-bottom: 2em;
-    transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  background: var(--surface-elevated);
+  padding: var(--space-xl);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 2em;
-    margin-bottom: 0.7em;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: #1e293b;
-    transition: color 0.3s cubic-bezier(.4,0,.2,1);
+  margin: var(--space-xl) 0 var(--space-sm) 0;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 
-h1 { 
-    font-size: 2.4em; 
-    border-bottom: 2px solid #e2e8f0; 
-    padding-bottom: 0.3em; 
-}
-h2 { font-size: 1.7em; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.2em; }
-h3 { font-size: 1.3em; }
-
-p { 
-    margin-bottom: 1.2em; 
-    font-size: 1.08em;
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  margin-top: 0;
 }
 
-/* Inline code styling */
+h2 {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  /* border-bottom: 1px solid var(--border); */
+  padding-bottom: var(--space-xs);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+}
+
+p {
+  margin: var(--space-md) 0;
+}
+
+/* Links */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+a:hover {
+  /* text-decoration: underline; */
+  border-bottom-color: var(--accent);
+}
+
+/* Web URL styling */
+a.web-url {
+  border-bottom: 1px dashed #7c3aed;
+  padding-left: 8px;
+  padding-right: 8px;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+}
+a.web-url:hover, a.web-url:focus {
+  background-color: #f3f0ff;
+  color: #5b21b6;
+  border-bottom: 2px solid #7c3aed;
+  text-decoration: none;
+}
+a.web-url::before {
+  content: "↘ ";
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+/* File path styling */
+a.file-path {
+  border-bottom: 1px dashed #2563eb;
+  padding-left: 8px;
+  padding-right: 8px;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+}
+a.file-path:hover, a.file-path:focus {
+  background-color: #c7d2fe;
+  color: #3730a3;
+  border-bottom: 2px solid #2563eb;
+  text-decoration: none;
+}
+a.file-path::before {
+  content: "▲ ";
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+
+/* Code */
 code {
-    background: #f3f6fa;
-    padding: 3px 7px;
-    border-radius: 5px;
-    font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 0.98em;
-    color: #e11d48;
-    transition: background 0.2s cubic-bezier(.4,0,.2,1);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--code-bg);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  color: var(--accent);
+  font-family: var(--code-font-family);
 }
 
-/* Code block styling */
-/* Pygments highlighted code blocks */
+pre {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  padding: var(--space-xs);
+  border-radius: var(--radius);
+  line-height: 1.4;
+  /* border-left: 3px solid var(--accent); */
+}
 
-/* Modern, simple code block with line numbers (Pygments/CodeHilite .highlighttable) */
+pre code {
+  background: none;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+.highlight {
+  overflow-x: scroll;
+  border: none;
+}
+
+/* Code blocks with line numbers */
 .highlighttable {
-    display: block;
-    width: 100%;
-    background: #f7f8fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    margin: 1.5em 0;
-    overflow-x: auto;
-    font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 1em;
-    line-height: 1.7;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.04);
-    transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: var(--space-md) 0;
+  border: 2px dashed var(--accent-light);
+  padding-right: var(--space-md);
+  font-family: var(--code-font-family);
 }
-.highlighttable tr {
-    display: flex;
-    width: 100%;
+
+.highlighttable table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px dashed var(--accent);
 }
-.highlighttable td {
-    border: none;
-    padding: 0;
-    background: none;
-    vertical-align: top;
-}
+
 .highlighttable .linenos {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    background: #f1f5f9;
-    color: #94a3b8;
-    padding: 14px 12px 14px 18px;
-    text-align: right;
-    user-select: none;
-    border-right: 1px solid #e2e8f0;
-    border-radius: 12px 0 0 12px;
-    min-width: 2.2em;
-    font-size: 1em;
-    letter-spacing: 0.02em;
+  color: var(--text-muted);
+  /* padding: var(--space-md); */
+  text-align: right;
+  user-select: none;
+  width: 3em;
+  vertical-align: top;
 }
+
 .highlighttable .linenodiv {
-    font-size: inherit;
-    line-height: inherit;
+  border-right: 2px solid var(--accent);
+  padding: 0; /* Remove any default padding */
+  margin: 0; /* Remove any default margin */
 }
+
 .highlighttable .code {
-    width: 100%;
-    padding: 14px 20px;
-    background: none;
-    color: #23272f;
-    border-radius: 0 12px 12px 0;
-    overflow-x: auto;
+  /* padding: var(--space-md); */
+  vertical-align: top;
 }
 
+.highlighttable tr {
+  display: flex;
+  width: 100%;
+  align-items: stretch; /* This ensures both columns have same height */
+}
 
+.highlighttable td {
+  border: none;
+  padding: 0;
+  background: none;
+  vertical-align: top;
+  overflow-x: scroll;
+}
 
-/* Additional fallback styles for common Pygments classes */
+/* Syntax highlighting */
 .highlight .k, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt {
-    color: #e11d48; font-weight: bold;
+  color: #e11d48; font-weight: bold;
 }
 .highlight .s, .highlight .s1, .highlight .s2, .highlight .se, .highlight .si, .highlight .sr, .highlight .ss {
-    color: #0284c7;
+  color: #0284c7;
 }
 .highlight .c, .highlight .c1, .highlight .cm, .highlight .cp, .highlight .cs {
-    color: #64748b; font-style: italic;
+  color: #64748b; font-style: italic;
 }
 .highlight .n { color: #23272f; }
 .highlight .na, .highlight .nc, .highlight .nd, .highlight .nf, .highlight .nn {
-    color: #7c3aed;
+  color: #7c3aed;
 }
 .highlight .nb { color: #0ea5e9; }
 .highlight .ne { color: #e11d48; }
 .highlight .nt { color: #16a34a; }
 .highlight .nv { color: #f59e42; }
 .highlight .m, .highlight .mi, .highlight .mf, .highlight .mh, .highlight .mo {
-    color: #0ea5e9;
+  color: #0ea5e9;
 }
 .highlight .o, .highlight .ow {
-    color: #e11d48; font-weight: bold;
+  color: #e11d48; font-weight: bold;
 }
 .highlight .p, .highlight .w {
-    color: #23272f;
+  color: #23272f;
 }
 
 
 
-/* Style the code block container */
-
-blockquote {
-    border-left: 4px solid #cbd5e1;
-    margin: 1.2em 0;
-    padding-left: 1.2em;
-    color: #64748b;
-    font-style: italic;
-    background: #f1f5f9;
-    border-radius: 0 8px 8px 0;
-    transition: background 0.3s cubic-bezier(.4,0,.2,1);
-}
-
-
+/* Lists */
 ul, ol {
-    margin: 1.2em 0;
-    padding-left: 2.2em;
+  margin: var(--space-md) 0;
+  padding-left: var(--space-lg);
 }
 
 li {
-    margin-bottom: 0.5em;
-    font-size: 1.05em;
+  margin: var(--space-xs) 0;
 }
 
-/* Markdown table styles */
+/* Tables */
 .markdown-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 28px 0;
-    width: 100%;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 6px 0 rgba(0,0,0,0.03);
-    transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: var(--space-md) 0;
+  overflow-x: scroll;
 }
 
 .markdown-table th,
 .markdown-table td {
-    border: 1px solid #e2e8f0;
-    padding: 12px 18px;
-    text-align: left;
-    font-size: 1em;
+  padding: var(--space-sm);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
 }
 
 .markdown-table th {
-    background-color: #f1f5f9;
-    font-weight: 700;
-    color: #1e293b;
+  font-weight: 600;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
 }
 
-.markdown-table tr:nth-child(even) {
-    background-color: #f8fafc;
+/* .markdown-table tr:nth-child(even) {
+  background-color: #f8fafc;
+} */
+
+/* Blockquotes */
+
+blockquote {
+  border-left: 4px solid var(--quote-border);
+  margin: 1.2em 0;
+  padding: var(--space-sm);
+  padding-left: 1.2em;
+  color: #64748b;
+  font-style: italic;
+  background: #f1f5f9;
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-
-
-a {
-    color: #6366f1;
-    text-decoration: none;
-    padding: 3px 2px;
-    border-radius: 5px;
-    transition: all 0.22s cubic-bezier(.4,0,.2,1);
-    font-weight: 500;
-}
-a:hover, a:focus {
-    text-decoration: underline;
-    background-color: #ede9fe;
-    color: #4f46e5;
-    box-shadow: 0 2px 8px 0 rgba(99,102,241,0.08);
-    outline: none;
+blockquote p {
+  margin: 0;
 }
 
-/* Web URL styling */
-a.web-url {
-    color: #7c3aed;
-    border-bottom: 1px dashed #7c3aed;
-    padding-left: 8px;
-    padding-right: 8px;
-    transition: all 0.2s cubic-bezier(.4,0,.2,1);
-}
-a.web-url:hover, a.web-url:focus {
-    background-color: #f3f0ff;
-    color: #5b21b6;
-    border-bottom: 2px solid #7c3aed;
-    text-decoration: none;
-}
-a.web-url::before {
-    content: "↘ ";
-    font-weight: bold;
-    opacity: 0.7;
-}
-
-/* File path styling */
-a.file-path {
-    color: #2563eb;
-    text-decoration: none;
-    border-left: 12px solid #6366f1;
-    background-color: #e0e7ff;
-    padding: 7px 16px 7px 12px;
-    font-weight: 600;
-    box-shadow: 0 1px 4px 0 rgba(99,102,241,0.07);
-    transition: all 0.2s cubic-bezier(.4,0,.2,1);
-}
-a.file-path:hover, a.file-path:focus {
-    background-color: #c7d2fe;
-    color: #3730a3;
-    border-left: 8px solid #6366f1;
-    border-right: 8px solid #6366f1;
-    box-shadow: 0 2px 12px 0 rgba(99,102,241,0.13);
-    outline: none;
-}
-
-/* In page jump link styling */
-a.jump-link {
-    transition: all 0.2s cubic-bezier(.4,0,.2,1);
-}
-a.jump-link:hover, a.jump-link:focus {
-    border: 1px dotted #7c3aed;
-    border-style: solid;
-    outline: none;
-}
-a.jump-link::after {
-    font-size: 0.8em;
-    opacity: 0.6;
-}
-
-/* Optional: Add smooth scrolling for jump links */
-html {
-    scroll-behavior: smooth;
-}
-
-strong {
-    font-weight: 700;
-}
-
-em {
-    font-style: italic;
-}
-
-del {
-    text-decoration: line-through;
-    opacity: 0.7;
-}
-
-/* Admonition styles */
+/* Admonitions */
 .admonition {
-  border-left: 5px solid #6366f1;
-  background: linear-gradient(90deg, #f5f3ff 0%, #f1f5f9 100%);
-  margin: 10px;
-  padding: 10px;
-  padding-left: 20px;
-  border-radius: 8px;
-  position: relative;
-  box-shadow: 0 1px 8px 0 rgba(99,102,241,0.07);
-  transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  margin: var(--space-sm) 0;
+  padding: var(--space-sm);
+  border-radius: var(--radius);
+  border-left: 8px solid var(--accent);
+  background: var(--accent-light);
 }
+
 .admonition-title {
-  font-weight: 700;
-  /* margin-bottom: 0.5em; */
-  color: #4f46e5;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  color: var(--accent);
 }
+
 .admonition.note {
-  border-color: #38bdf8;
+  border-color: var(--info);
   background: linear-gradient(90deg, #e0f2fe 0%, #f1f5f9 100%);
 }
+
 .admonition.warning {
-  border-color: #f59e42;
+  border-left-color: var(--warning);
   background: linear-gradient(90deg, #fff7ed 0%, #f1f5f9 100%);
 }
+
 .admonition.danger {
-  border-color: #e11d48;
+  border-left-color: var(--danger);
   background: linear-gradient(90deg, #ffe4e6 0%, #f1f5f9 100%);
 }
 
-/* Mermaid diagram block */
-.mermaid {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.2em;
-  margin: 2em 0;
-  overflow-x: auto;
-  box-shadow: 0 1px 8px 0 rgba(99,102,241,0.07);
-  transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+
+/* Details/Summary */
+details {
+  margin: var(--space-md) 0;
+  border: 2px solid var(--accent-light);
+  border-radius: var(--radius);
 }
 
-/* Animations */
-@media (hover: hover) {
-  a, .markdown-table, .highlighttable, .admonition, .mermaid, .markdown-content {
-    transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1), background 0.3s cubic-bezier(.4,0,.2,1), color 0.2s cubic-bezier(.4,0,.2,1);
-  }
-  a:hover, a:focus, .markdown-table:hover, .highlighttable:hover, .admonition:hover, .mermaid:hover, .markdown-content:hover {
-    box-shadow: 0 4px 24px 0 rgba(99,102,241,0.13);
-  }
+summary {
+  padding: var(--space-md);
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface);
+  border-radius: var(--radius);
 }
 
-@media (max-width: 600px) {
+details[open] summary {
+  border-bottom: 2px dashed var(--accent-light);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+details > *:not(summary) {
+  padding: var(--space-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
   body {
-    padding: 10px;
+    padding: var(--space-sm);
   }
+  
   .markdown-content {
-    padding: 16px 6px;
+    padding: var(--space-md);
   }
+  
+  pre {
+    padding: var(--space-sm);
+  }
+  
+  .highlighttable .linenos,
   .highlighttable .code {
-    padding: 10px 4px;
+    padding: var(--space-sm);
   }
-  .markdown-table th, .markdown-table td {
-    padding: 8px 6px;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+    max-width: none;
   }
-  .admonition {
-    padding: 0.8em 0.7em;
+  
+  .markdown-content {
+    border: none;
+    padding: 0;
   }
+}
+
+
+strong {
+  font-weight: 700;
+}
+
+em {
+  font-style: italic;
+}
+
+del {
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 markdown-hlt {
@@ -376,99 +430,6 @@ markdown-hlt:hover, markdown-hlt:focus {
   color: #a16207;
   outline: none;
 }
-
-summary {
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1.08em;
-  color: #4f46e5;
-  background: #f1f5f9;
-  padding: 8px 16px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  outline: none;
-  transition: background 0.2s cubic-bezier(.4,0,.2,1), color 0.2s cubic-bezier(.4,0,.2,1), box-shadow 0.2s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 1px 4px 0 rgba(99,102,241,0.04);
-}
-summary:hover, summary:focus {
-  background: #ede9fe;
-  color: #3730a3;
-  box-shadow: 0 2px 8px 0 rgba(99,102,241,0.10);
-}
-
-details {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px 0 rgba(99,102,241,0.04);
-  margin: 18px 0;
-  padding: 0 0 10px 0;
-  transition: box-shadow 0.2s cubic-bezier(.4,0,.2,1), border-color 0.2s cubic-bezier(.4,0,.2,1);
-  overflow: hidden;
-}
-details[open] {
-  box-shadow: 0 2px 16px 0 rgba(99,102,241,0.09);
-  border-color: #6366f1;
-}
-details > summary {
-  margin-bottom: 0;
-  border-bottom: 1px solid #e2e8f0;
-  border-radius: 10px 10px 0 0;
-}
-
-details > *:not(summary) {
-  padding-left: 20px;
-}
-
-details[open] > summary {
-  border-bottom: 1px solid #6366f1;
-}
-
-/* Copy button for code blocks, tables, details */
-.copy-btn {
-  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  display: none;
-  padding: 4px 10px;
-  font-size: 0.95em;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px 0 rgba(99,102,241,0.13);
-  transition: background 0.2s, opacity 0.2s;
-  opacity: 0.95;
-}
-/* .copy-btn:hover, .copy-btn:focus {
-  background: #3b82f6;
-  opacity: 0.6;
-} */
-
-/* Query button for text selection */
-/* .query-btn {
-  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-  position: fixed;
-  z-index: 9999;
-  display: none;
-  padding: 4px 12px;
-  font-size: 1em;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px 0 rgba(37,99,235,0.13);
-  transition: background 0.2s, opacity 0.2s;
-  opacity: 0.97;
-}
-.query-btn:hover, .query-btn:focus {
-  background: #1d4ed8;
-  opacity: 1;
-}
- */
 
 </style>
 
@@ -581,44 +542,40 @@ details[open] > summary {
 <hr/>
 <h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
 <h3 id="code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</h3>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello, World!"</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">"success"</span>
 <span class="c1"># This is a comment</span>
 <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-</code></pre></div>
-</td></tr></table>
+</code></pre></div></td></tr></table></div>
 <h3 id="different-language-examples">Different Language Examples</h3>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">const</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
-    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">greeting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="p">};</span>
-</code></pre></div>
-</td></tr></table>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+</code></pre></div></td></tr></table></div>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
-<span class="nb">echo</span> <span class="s2">"Running deployment script..."</span>
-<span class="nb">cd</span> /var/www/html
-git pull origin main
-</code></pre></div>
-</td></tr></table>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Running deployment script..."</span>
+<span class="nb">cd</span><span class="w"> </span>/var/www/html
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+</code></pre></div></td></tr></table></div>
 <h3 id="code-block-without-language">Code Block Without Language</h3>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>Plain text code block
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>Plain text code block
 No syntax highlighting
 Just monospace font
-</code></pre></div>
-</td></tr></table>
+</code></pre></div></td></tr></table></div>
 <h2 id="tables-tables">Tables {#tables}</h2>
 <h3 id="basic-table">Basic Table</h3>
 <table class="markdown-table">
@@ -753,9 +710,8 @@ It can span multiple lines.</p>
 <li>This is the second list item.</li>
 </ol>
 <p>Here's some code in a blockquote:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="nv">shell_exec</span><span class="ss">(</span><span class="s2">"</span><span class="s">echo $input | $markdown_script</span><span class="s2">"</span><span class="ss">)</span><span class="c1">;</span>
-</code></pre></div>
-</td></tr></table>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>return shell_exec("echo $input | $markdown_script");
+</code></pre></div></td></tr></table></div>
 </blockquote>
 <h2 id="list-examples">List Examples</h2>
 <h3 id="unordered-lists">Unordered Lists</h3>
@@ -841,15 +797,14 @@ And this is a new line.</p>
 <p>This text has a footnote[^1]. Here's another footnote[^note].</p>
 <p>[^1]: This is the first footnote.
 [^note]: This is a longer footnote with multiple lines.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nv">It</span> <span class="nv">can</span> <span class="nv">even</span> <span class="nv">contain</span> <span class="nv">code</span> <span class="nv">blocks</span>:
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>It can even contain code blocks:
 
-    <span class="nv">def</span> <span class="nv">footnote_example</span><span class="ss">()</span>:
-        <span class="k">return</span> <span class="s2">"</span><span class="s">footnote</span><span class="s2">"</span>
-</code></pre></div>
-</td></tr></table>
+    def footnote_example():
+        return "footnote"
+</code></pre></div></td></tr></table></div>
 <h2 id="math-equations-if-supported">Math Equations (if supported)</h2>
 <p>Inline math: <span class="arithmatex">\(E = mc^2\)</span></p>
 <p>Block math:
@@ -908,17 +863,16 @@ Ampersand: &amp;</p>
 <p>This is a danger alert.</p>
 </div>
 <h2 id="mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</h2>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span><span class="w"></span>
-<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="err">{</span><span class="k">Is</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">working</span><span class="vm">?</span><span class="err">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="o">[</span><span class="n">Great!</span><span class="o">]</span><span class="w"></span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="k">No</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="o">[</span><span class="n">Debug</span><span class="o">]</span><span class="w"></span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; B{Is it working?}</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|Yes| C[Great!]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|No| D[Debug]</span>
 <span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt; B</span>
-</code></pre></div>
-</td></tr></table>
+</code></pre></div></td></tr></table></div>
 <h2 id="headers-of-all-levels">Headers of All Levels</h2>
 <h1 id="h1-header">H1 Header</h1>
 <h2 id="h2-header">H2 Header</h2>
@@ -963,6 +917,102 @@ Ampersand: &amp;</p>
 </ul>
 </blockquote>
 <p>[^complex]: This footnote is referenced from within a blockquote.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"./mock_agents"</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">offline.run_case_rl_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tool_list_exec_res</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">call_tool_by_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"&lt;tool_call&gt;(.*?)&lt;/tool_call&gt;"</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+        <span class="n">tool_result</span> <span class="o">=</span> <span class="n">get_tool_list_exec_res</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="p">{},</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tool_result</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_with_tool</span><span class="p">(</span><span class="n">user_prompt</span><span class="p">,</span> <span class="n">llm_api_service</span><span class="p">,</span> <span class="n">tool_instance</span><span class="p">):</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># {"role": "system", "content": system_prompt + example + do_not_gen_tool_note},</span>
+        <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">user_prompt</span><span class="p">},</span>
+    <span class="p">]</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">lm_gen_resp</span> <span class="o">=</span> <span class="n">llm_api_service</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">generation_config</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"max_tokens"</span><span class="p">:</span><span class="mi">16384</span><span class="p">,</span>
+            <span class="s2">"temperature"</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="s2">"n"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">'timeout'</span><span class="p">:</span> <span class="mi">300</span>
+        <span class="p">})[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"assistant"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">lm_gen_resp</span><span class="p">})</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'content'</span><span class="p">])</span>
+        <span class="n">tool_call_count</span> <span class="o">=</span> <span class="n">lm_gen_resp</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&lt;tool_call&gt;"</span><span class="p">)</span>
+        <span class="n">end_tool_call_count</span> <span class="o">=</span> <span class="n">lm_gen_resp</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&lt;/tool_call&gt;"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tool_call_count</span> <span class="o">!=</span> <span class="n">end_tool_call_count</span> <span class="ow">or</span> <span class="n">tool_call_count</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">tool_call_count</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">end_tool_call_count</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">messages</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tool_ret</span> <span class="o">=</span> <span class="n">tool_instance</span><span class="p">(</span><span class="n">lm_gen_resp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">tool_ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">messages</span>
+                <span class="c1"># print(f"DEBUG: {tool_ret=}")</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span>  <span class="sa">f</span><span class="s2">"&lt;tool_response&gt;</span><span class="si">{</span><span class="n">tool_ret</span><span class="si">}</span><span class="s2">&lt;/tool_response&gt;"</span><span class="p">})</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'content'</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">messages</span>
+</code></pre></div></td></tr></table></div>
 <hr/>
 <p><em>End of comprehensive markdown test document.</em></p>
 <p><strong>Total word count:</strong> Approximately 500+ words with comprehensive syntax coverage.</p>
@@ -979,7 +1029,7 @@ function addCopyButtons() {
         btn.innerHTML = 'COPY';
         btn.style.position = 'absolute';
         btn.style.top = '8px';
-        btn.style.right = '8px';
+        btn.style.left = '8px';
         btn.style.zIndex = '10';
         btn.style.display = 'none';
         btn.style.padding = '4px 10px';

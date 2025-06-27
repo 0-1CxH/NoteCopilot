@@ -7,7 +7,7 @@ function addCopyButtons() {
         btn.innerHTML = 'COPY';
         btn.style.position = 'absolute';
         btn.style.top = '8px';
-        btn.style.right = '8px';
+        btn.style.left = '8px';
         btn.style.zIndex = '10';
         btn.style.display = 'none';
         btn.style.padding = '4px 10px';

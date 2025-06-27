@@ -353,6 +353,59 @@ Here's a complex example combining multiple elements:
 
 [^complex]: This footnote is referenced from within a blockquote.
 
+```python
+import sys
+import re
+
+sys.path.append("./mock_agents")
+from offline.run_case_rl_test import get_tool_list_exec_res
+
+
+def call_tool_by_text(text):
+    pattern = r"<tool_call>(.*?)</tool_call>"
+    matches = re.findall(pattern, text, re.DOTALL)
+    if matches:
+        tool_result = get_tool_list_exec_res(matches, {}, "")
+        return tool_result
+    else:
+        return None
+
+def generate_with_tool(user_prompt, llm_api_service, tool_instance):
+    messages = [
+        # {"role": "system", "content": system_prompt + example + do_not_gen_tool_note},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    while True:
+        lm_gen_resp = llm_api_service(messages=messages, generation_config={
+            "max_tokens":16384,
+            "temperature":0.2,
+            "n": 1,
+            'timeout': 300
+        })[0]
+        messages.append({"role": "assistant", "content": lm_gen_resp})
+        print(messages[-1]['content'])
+        tool_call_count = lm_gen_resp.count("<tool_call>")
+        end_tool_call_count = lm_gen_resp.count("</tool_call>")
+        if tool_call_count != end_tool_call_count or tool_call_count != 1:
+            if len(messages) <= 3:
+                print(f"ERROR: {tool_call_count=} {end_tool_call_count=}")
+            return messages
+        else:
+            try:
+                tool_ret = tool_instance(lm_gen_resp)
+                if tool_ret is None:
+                    return messages
+                # print(f"DEBUG: {tool_ret=}")
+                messages.append({"role": "user", "content":  f"<tool_response>{tool_ret}</tool_response>"})
+                print(messages[-1]['content'])
+            except Exception as e:
+                print(e)
+                return messages
+    
+```
+
+
 ---
 
 *End of comprehensive markdown test document.*
