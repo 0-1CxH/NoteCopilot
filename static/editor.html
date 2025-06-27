@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Split View Markdown Editor</title>
+  <title>Note Copilot Editor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     html, body {
       height: 100%;
@@ -227,31 +228,30 @@
       }
     }
   </style>
-  <!-- Marked.js for Markdown parsing (placeholder for backend) -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
+
 </head>
 <body>
   <nav class="menu-bar">
     <div class="menu-group">
-      <button class="menu-btn" title="Insert Code"><span class="icon">&lt;/&gt;</span>Code</button>
-      <button class="menu-btn" id="insertTableBtn" title="Insert Table"><span class="icon">&#x1F4C1;</span>Table</button>
-      <button class="menu-btn" id="insertTocBtn" title="Insert TOC"><span class="icon">&#x1F4CB;</span>TOC</button>
-      <button class="menu-btn" id="insertQuoteBtn" title="Insert Quote"><span class="icon">&#x275D;</span>Quote</button>
-      <button class="menu-btn" id="insertTodoBtn" title="Insert TODO"><span class="icon">&#x2610;</span>TODO</button>
-      <button class="menu-btn" title="Insert LaTeX"><span class="icon">&#x03A3;</span>LaTeX</button>
-      <button class="menu-btn" title="Insert Detail"><span class="icon">&#x25BC;</span>Detail</button>
+      <button class="menu-btn" title="Insert Code"><span class="fas fa-code"></span></button>
+      <button class="menu-btn" id="insertTableBtn" title="Insert Table"><span class="fas fa-table"></span></button>
+      <button class="menu-btn" id="insertTocBtn" title="Insert TOC"><span class="fas fa-list-ul"></span></button>
+      <button class="menu-btn" id="insertQuoteBtn" title="Insert Quote"><span class="fas fa-quote-left"></span></button>
+      <button class="menu-btn" id="insertTodoBtn" title="Insert TODO"><span class="fas fa-check-square"></span></button>
+      <button class="menu-btn" title="Insert LaTeX"><span class="fas fa-square-root-alt"></span></button>
+      <button class="menu-btn" title="Insert Detail"><span class="fas fa-chevron-circle-down"></span></button>
     </div>
     <div class="menu-group">
       <button class="menu-btn" title="Bold"><span class="icon"><b>B</b></span></button>
       <button class="menu-btn" title="Italic"><span class="icon"><i>I</i></span></button>
-      <button class="menu-btn" title="Highlight"><span class="icon">&#x1F4A1;</span></button>
+      <button class="menu-btn" title="Highlight"><span class="fas fa-highlighter"></span></button>
       <button class="menu-btn" title="Strikethrough"><span class="icon"><s>S</s></span></button>
       <button class="menu-btn" title="Underline"><span class="icon"><u>U</u></span></button>
     </div>
     <div class="menu-group">
-      <button class="menu-btn" title="Export Markdown"><span class="icon">&#x1F4C4;</span>MD</button>
-      <button class="menu-btn" title="Export HTML"><span class="icon">&#x1F4C3;</span>HTML</button>
-      <button class="menu-btn" title="Export PDF"><span class="icon">&#x1F4D1;</span>PDF</button>
+      <button class="menu-btn" title="Export Markdown"><span class="fab fa-markdown"></span></button>
+      <button class="menu-btn" title="Export HTML"><span class="fas fa-globe"></span></button>
+      <button class="menu-btn" title="Export PDF"><span class="far fa-file-pdf"></span></button>
     </div>
   </nav>
   <div class="split-container" id="splitContainer">
@@ -260,7 +260,7 @@
     </div>
     <div class="resizer" id="resizer"><div class="resizer-bar"></div></div>
     <div class="pane right">
-      <iframe class="preview" id="htmlPreview" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe class="preview" id="htmlPreview" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
     </div>
   </div>
   <script>

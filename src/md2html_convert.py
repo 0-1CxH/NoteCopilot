@@ -56,7 +56,7 @@ class Markdown2HTMLConverter:
 '''
         self.js_content_before_body = f'''
 <script>
-    {self.load_content_from_file("static/tex-mml-chtml.js")}
+    {self.load_content_from_file("static/latex-math.js")}
 </script>'''
         self.js_content_after_body = f'''
 <script>
