@@ -30,6 +30,12 @@
   --space-lg: 2rem;
   --space-xl: 3rem;
   --code-font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  --gradient-blue: linear-gradient(90deg, #38bdf8 0%, #6366f1 100%);
+  --gradient-info: linear-gradient(90deg, #e0f2fe 0%, #fff 100%);
+  --gradient-warning: linear-gradient(90deg, #fbbf24 0%, #fff 100%);
+  --gradient-purple: linear-gradient(90deg, #a78bfa 0%, #f472b6 100%);
+  --gradient-danger: linear-gradient(90deg, #d73b2a 0%, #fff 100%);
+  --gradient-gray: linear-gradient(90deg, #e0e7ef 0%, #f1f5f9 100%);
 }
 
 * {
@@ -52,6 +58,7 @@ body {
   padding: var(--space-xl);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  box-shadow: 0 4px 24px 0 rgba(60,72,100,0.10), 0 1.5px 6px 0 rgba(99,102,241,0.04);
 }
 
 /* Typography */
@@ -169,10 +176,13 @@ pre code {
   background: var(--code-bg);
   border-radius: var(--radius);
   overflow: hidden;
+  width: 100%;
+  
   margin: var(--space-md) 0;
   border: 2px dashed var(--accent-light);
   padding-right: var(--space-md);
   font-family: var(--code-font-family);
+  box-shadow: 0 2px 12px 0 rgba(0,102,204,0.07);
 }
 
 .highlighttable table {
@@ -198,6 +208,7 @@ pre code {
 
 .highlighttable .code {
   /* padding: var(--space-md); */
+  padding-left: var(--space-sm);
   vertical-align: top;
 }
 
@@ -291,6 +302,8 @@ blockquote {
   font-style: italic;
   background: #f1f5f9;
   border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--gradient-gray);
+  box-shadow: 0 2px 12px 0 rgba(100,116,139,0.08);
 }
 
 blockquote p {
@@ -304,6 +317,7 @@ blockquote p {
   border-radius: var(--radius);
   border-left: 8px solid var(--accent);
   background: var(--accent-light);
+  box-shadow: 0 2px 12px 0 rgba(56,189,248,0.08), 0 1.5px 6px 0 rgba(99,102,241,0.04);
 }
 
 .admonition-title {
@@ -314,32 +328,33 @@ blockquote p {
 
 .admonition.note {
   border-color: var(--info);
-  background: linear-gradient(90deg, #e0f2fe 0%, #f1f5f9 100%);
+  background: var(--gradient-info);
 }
 
 .admonition.warning {
   border-left-color: var(--warning);
-  background: linear-gradient(90deg, #fff7ed 0%, #f1f5f9 100%);
+  background: var(--gradient-warning);
 }
 
 .admonition.danger {
   border-left-color: var(--danger);
-  background: linear-gradient(90deg, #ffe4e6 0%, #f1f5f9 100%);
+  background: var(--gradient-danger);
 }
 
 
 /* Details/Summary */
 details {
   margin: var(--space-md) 0;
-  border: 2px solid var(--accent-light);
+  border: 2px solid var(--accent);
   border-radius: var(--radius);
+  box-shadow: 0 2px 12px 0 rgba(0,102,204,0.07);
 }
 
 summary {
   padding: var(--space-md);
   font-weight: 600;
   cursor: pointer;
-  background: var(--surface);
+  background: var(--accent-light);
   border-radius: var(--radius);
 }
 
@@ -417,18 +432,40 @@ del {
 }
 
 markdown-hlt {
-  background: linear-gradient(90deg, #fef08a 0%, #fef9c3 100%);
+  background: var(--gradient-yellow, linear-gradient(90deg, #fef08a 0%, #fef9c3 100%));
   color: #b45309;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 6px;
-  box-shadow: 0 1px 4px 0 rgba(251,191,36,0.07);
+  box-shadow: 0 2px 8px 0 rgba(251,191,36,0.13);
   transition: background 0.2s cubic-bezier(.4,0,.2,1), color 0.2s cubic-bezier(.4,0,.2,1);
 }
 markdown-hlt:hover, markdown-hlt:focus {
   background: linear-gradient(90deg, #fde047 0%, #fef08a 100%);
   color: #a16207;
   outline: none;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  display: none;
+  padding: 4px 10px;
+  font-size: 0.95em;
+  background: var(--gradient-blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(99,102,241,0.13);
+  transition: background 0.2s, color 0.2s;
+}
+.copy-btn:hover, .copy-btn:focus {
+  background: var(--gradient-purple);
+  color: #fff;
+  outline: 2px solid var(--accent);
 }
 
 </style>
@@ -542,40 +579,44 @@ markdown-hlt:hover, markdown-hlt:focus {
 <hr/>
 <h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
 <h3 id="code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello, World!"</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">"success"</span>
 <span class="c1"># This is a comment</span>
 <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h3 id="different-language-examples">Different Language Examples</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">greeting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">const</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
 <span class="p">};</span>
-</code></pre></div></td></tr></table></div>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+</code></pre></div>
+</td></tr></table>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Running deployment script..."</span>
-<span class="nb">cd</span><span class="w"> </span>/var/www/html
-git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-</code></pre></div></td></tr></table></div>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span> <span class="s2">"Running deployment script..."</span>
+<span class="nb">cd</span> /var/www/html
+git pull origin main
+</code></pre></div>
+</td></tr></table>
 <h3 id="code-block-without-language">Code Block Without Language</h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>Plain text code block
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>Plain text code block
 No syntax highlighting
 Just monospace font
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h2 id="tables-tables">Tables {#tables}</h2>
 <h3 id="basic-table">Basic Table</h3>
 <table class="markdown-table">
@@ -710,8 +751,9 @@ It can span multiple lines.</p>
 <li>This is the second list item.</li>
 </ol>
 <p>Here's some code in a blockquote:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>return shell_exec("echo $input | $markdown_script");
-</code></pre></div></td></tr></table></div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="nv">shell_exec</span><span class="ss">(</span><span class="s2">"</span><span class="s">echo $input | $markdown_script</span><span class="s2">"</span><span class="ss">)</span><span class="c1">;</span>
+</code></pre></div>
+</td></tr></table>
 </blockquote>
 <h2 id="list-examples">List Examples</h2>
 <h3 id="unordered-lists">Unordered Lists</h3>
@@ -797,14 +839,15 @@ And this is a new line.</p>
 <p>This text has a footnote[^1]. Here's another footnote[^note].</p>
 <p>[^1]: This is the first footnote.
 [^note]: This is a longer footnote with multiple lines.</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>It can even contain code blocks:
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nv">It</span> <span class="nv">can</span> <span class="nv">even</span> <span class="nv">contain</span> <span class="nv">code</span> <span class="nv">blocks</span>:
 
-    def footnote_example():
-        return "footnote"
-</code></pre></div></td></tr></table></div>
+    <span class="nv">def</span> <span class="nv">footnote_example</span><span class="ss">()</span>:
+        <span class="k">return</span> <span class="s2">"</span><span class="s">footnote</span><span class="s2">"</span>
+</code></pre></div>
+</td></tr></table>
 <h2 id="math-equations-if-supported">Math Equations (if supported)</h2>
 <p>Inline math: <span class="arithmatex">\(E = mc^2\)</span></p>
 <p>Block math:
@@ -863,16 +906,17 @@ Ampersand: &amp;</p>
 <p>This is a danger alert.</p>
 </div>
 <h2 id="mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</h2>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span>
-<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
-<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; B{Is it working?}</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|Yes| C[Great!]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt;|No| D[Debug]</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span><span class="w"></span>
+<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">Start</span><span class="o">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="err">{</span><span class="k">Is</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">working</span><span class="vm">?</span><span class="err">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="o">[</span><span class="n">Great!</span><span class="o">]</span><span class="w"></span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="k">No</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="o">[</span><span class="n">Debug</span><span class="o">]</span><span class="w"></span>
 <span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt; B</span>
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <h2 id="headers-of-all-levels">Headers of All Levels</h2>
 <h1 id="h1-header">H1 Header</h1>
 <h2 id="h2-header">H2 Header</h2>
@@ -917,7 +961,7 @@ Ampersand: &amp;</p>
 </ul>
 </blockquote>
 <p>[^complex]: This footnote is referenced from within a blockquote.</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
 <span class="normal"> 4</span>
@@ -964,14 +1008,14 @@ Ampersand: &amp;</p>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
-<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"./mock_agents"</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">offline.run_case_rl_test</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tool_list_exec_res</span>
+<span class="kn">from</span> <span class="nn">offline.run_case_rl_test</span> <span class="kn">import</span> <span class="n">get_tool_list_exec_res</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">call_tool_by_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">call_tool_by_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"&lt;tool_call&gt;(.*?)&lt;/tool_call&gt;"</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
@@ -980,7 +1024,7 @@ Ampersand: &amp;</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_with_tool</span><span class="p">(</span><span class="n">user_prompt</span><span class="p">,</span> <span class="n">llm_api_service</span><span class="p">,</span> <span class="n">tool_instance</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_with_tool</span><span class="p">(</span><span class="n">user_prompt</span><span class="p">,</span> <span class="n">llm_api_service</span><span class="p">,</span> <span class="n">tool_instance</span><span class="p">):</span>
     <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
         <span class="c1"># {"role": "system", "content": system_prompt + example + do_not_gen_tool_note},</span>
         <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">user_prompt</span><span class="p">},</span>
@@ -1012,7 +1056,8 @@ Ampersand: &amp;</p>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">messages</span>
-</code></pre></div></td></tr></table></div>
+</code></pre></div>
+</td></tr></table>
 <hr/>
 <p><em>End of comprehensive markdown test document.</em></p>
 <p><strong>Total word count:</strong> Approximately 500+ words with comprehensive syntax coverage.</p>

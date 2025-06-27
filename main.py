@@ -5,6 +5,7 @@ if __name__ == '__main__':
     # Get the absolute path to the static folder
     current_dir = os.path.dirname(os.path.abspath(__file__))
     static_folder = os.path.join(current_dir, "static")
+    notes_folder  = os.path.join(current_dir, "notes_save")
     
-    server = NoteCopilotServer(static_folder=static_folder)
-    server.run(debug=True, port=5000)
+    server = NoteCopilotServer(static_folder=static_folder, notes_folder=notes_folder)
+    server.run(debug=True, port=27871)

@@ -227,11 +227,44 @@
         right: -10px;
       }
     }
+    .file-list-item {
+      cursor: pointer;
+      padding: 8px 18px;
+      color: #2d3559;
+      border-radius: 7px;
+      margin: 2px 8px;
+      transition: background 0.15s, color 0.15s;
+      outline: none;
+      border: none;
+      font-size: 1.08em;
+      font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      letter-spacing: 0.01em;
+      display: block;
+      font-weight: 500;
+    }
+    .file-list-item:hover, .file-list-item:focus {
+      background: #ede9fe;
+      color: #4f46e5;
+    }
+    .file-list-item:active {
+      background: #c7d2fe;
+      color: #3730a3;
+    }
+    .file-list-loading, .file-list-empty, .file-list-error {
+      color: #888;
+      padding: 12px 18px;
+      text-align: center;
+      font-size: 0.98em;
+    }
   </style>
 
 </head>
 <body>
   <nav class="menu-bar">
+    <div class="menu-group">
+      <button class="menu-btn" id="completionBtn" title="Completion"><span class="fas fa-magic"></span></button>
+      <button class="menu-btn" id="askBtn" title="Ask"><span class="fas fa-question-circle"></span></button>
+    </div>
     <div class="menu-group">
       <button class="menu-btn" title="Insert Code"><span class="fas fa-code"></span></button>
       <button class="menu-btn" id="insertTableBtn" title="Insert Table"><span class="fas fa-table"></span></button>
@@ -249,9 +282,24 @@
       <button class="menu-btn" title="Underline"><span class="icon"><u>U</u></span></button>
     </div>
     <div class="menu-group">
-      <button class="menu-btn" title="Export Markdown"><span class="fab fa-markdown"></span></button>
-      <button class="menu-btn" title="Export HTML"><span class="fas fa-globe"></span></button>
-      <button class="menu-btn" title="Export PDF"><span class="far fa-file-pdf"></span></button>
+      <button class="menu-btn" id="loadBtn" title="Load"><span class="fas fa-folder-open"></span></button>
+      <button class="menu-btn" id="saveBtn" title="Save"><span class="fas fa-save"></span></button>
+      <div class="menu-btn" id="exportDropdownBtn" title="Export" style="position:relative;">
+        <span class="fas fa-file-export"></span>
+      </div>
+      <div id="exportDropdownMenu" style="display:none;position:absolute;top:110%;left:70%;z-index:1001;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:6px 0;min-width:0;">
+        <div style="display:flex;flex-direction:row;gap:0;align-items:center;justify-content:center;">
+          <div class="export-item menu-btn" id="exportMdBtn">
+            <span class="fab fa-markdown"></span>
+          </div>
+          <div class="export-item menu-btn" id="exportHtmlBtn">
+            <span class="fas fa-globe"></span>
+          </div>
+          <div class="export-item menu-btn" id="exportPdfBtn">
+            <span class="far fa-file-pdf"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
   <div class="split-container" id="splitContainer">
@@ -591,6 +639,69 @@
       // Hide bubble on scroll or resize
       window.addEventListener('scroll', hideTableBubble);
       window.addEventListener('resize', hideTableBubble);
+
+      // Save last used filename in localStorage
+      function setLastUsedFile(filename) {
+        localStorage.setItem('lastUsedFile', filename);
+      }
+      function getLastUsedFile() {
+        return localStorage.getItem('lastUsedFile') || '';
+      }
+
+      // Export dropdown logic
+      const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+      const exportDropdownMenu = document.getElementById('exportDropdownMenu');
+      let exportOpen = false;
+      function showExportDropdown() {
+        exportDropdownMenu.style.display = 'block';
+        exportOpen = true;
+      }
+      function hideExportDropdown() {
+        exportDropdownMenu.style.display = 'none';
+        exportOpen = false;
+      }
+      exportDropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (exportOpen) {
+          hideExportDropdown();
+        } else {
+          showExportDropdown();
+        }
+      });
+      // Hide dropdown on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (exportOpen && !exportDropdownMenu.contains(e.target) && e.target !== exportDropdownBtn) {
+          hideExportDropdown();
+        }
+      });
+      window.addEventListener('scroll', hideExportDropdown);
+      window.addEventListener('resize', hideExportDropdown);
+      // Export actions
+      document.getElementById('exportMdBtn').addEventListener('click', () => {
+        const filename = getLastUsedFile() ? getLastUsedFile() : 'note.md';
+        downloadFile(filename, mdInput.value, 'text/markdown');
+        hideExportDropdown();
+      });
+      document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+        try {
+          const doc = htmlPreview.contentDocument;
+          const html = doc.documentElement.outerHTML;
+          const filename = getLastUsedFile() ? getLastUsedFile() : 'note.html';
+          downloadFile(filename, html, 'text/html');
+        } catch (e) {
+          alert('Preview not ready');
+        }
+        hideExportDropdown();
+      });
+      document.getElementById('exportPdfBtn').addEventListener('click', () => {
+        try {
+          htmlPreview.contentWindow.focus();
+          htmlPreview.contentWindow.print();
+        } catch (e) {
+          alert('Preview not ready');
+        }
+        hideExportDropdown();
+      });
       menuBtns.forEach(btn => {
         btn.addEventListener('click', e => {
           const title = btn.title;
@@ -602,7 +713,7 @@
               insertBlockAtCursor(mdInput, '$$\nE = mc^2\n$$');
               break;
             case 'Insert Detail':
-              insertBlockAtCursor(mdInput, '<details open>\n<summary>Details</summary>\n<p>More info here.</p>\n</details>');
+              insertAtCursor(mdInput, '<details open>\n<summary>Details</summary>\n<p>More info here.</p>\n</details>');
               break;
             case 'Bold':
               insertAtCursor(mdInput, '**', '**', 'bold');
@@ -619,28 +730,6 @@
             case 'Underline':
               insertAtCursor(mdInput, '<u>', '</u>', 'underline');
               break;
-            case 'Export Markdown':
-              downloadFile('note.md', mdInput.value, 'text/markdown');
-              break;
-            case 'Export HTML':
-              // Get HTML from preview iframe
-              try {
-                const doc = htmlPreview.contentDocument;
-                const html = doc.documentElement.outerHTML;
-                downloadFile('note.html', html, 'text/html');
-              } catch (e) {
-                alert('Preview not ready');
-              }
-              break;
-            case 'Export PDF':
-              // Print the preview iframe
-              try {
-                htmlPreview.contentWindow.focus();
-                htmlPreview.contentWindow.print();
-              } catch (e) {
-                alert('Preview not ready');
-              }
-              break;
             case 'Insert TOC':
               insertBlockAtCursor(mdInput, '[TOC]');
               break;
@@ -653,6 +742,260 @@
           }
         });
       });
+      // Load/Save logic
+      const loadBtn = document.getElementById('loadBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const fileListModal = document.getElementById('fileListModal');
+      const fileList = document.getElementById('fileList');
+      // Show file list bubble under Load button
+      function showFileListBubble() {
+        const rect = loadBtn.getBoundingClientRect();
+        fileListModal.style.display = 'block';
+        fileListModal.style.left = (rect.left + window.scrollX) + 'px';
+        fileListModal.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      }
+      function hideFileListBubble() {
+        fileListModal.style.display = 'none';
+      }
+      loadBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (fileListModal.style.display === 'block') {
+          hideFileListBubble();
+          return;
+        }
+        fileList.innerHTML = '<li class="file-list-loading">Loading...</li>';
+        showFileListBubble();
+        try {
+          const resp = await fetch('/list');
+          if (!resp.ok) throw new Error('Failed to fetch file list');
+          const data = await resp.json();
+          const files = data.files;
+          if (!Array.isArray(files) || files.length === 0) {
+            fileList.innerHTML = '<li class="file-list-empty">No files found.</li>';
+          } else {
+            fileList.innerHTML = '';
+            files.forEach(filename => {
+              const li = document.createElement('li');
+              li.textContent = filename;
+              li.className = 'file-list-item';
+              li.tabIndex = 0;
+              li.addEventListener('click', async () => {
+                try {
+                  const resp = await fetch(`/load?file=${encodeURIComponent(filename)}`);
+                  setLastUsedFile(filename)
+                  if (!resp.ok) throw new Error('Failed to load file');
+                  const data = await resp.json();
+                  if (typeof data.content === 'string') {
+                    mdInput.value = data.content;
+                    mdInput.dispatchEvent(new Event('input'));
+                    hideFileListBubble();
+                  } else {
+                    alert('Invalid file content');
+                  }
+                } catch (e) {
+                  alert('Error loading file: ' + e.message);
+                }
+              });
+              li.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                  li.click();
+                }
+              });
+              fileList.appendChild(li);
+            });
+          }
+        } catch (e) {
+          fileList.innerHTML = '<li class="file-list-error">Error: ' + e.message + '</li>';
+        }
+      });
+      // Hide bubble on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (fileListModal.style.display === 'block' && !fileListModal.contains(e.target) && e.target !== loadBtn) {
+          hideFileListBubble();
+        }
+      });
+      window.addEventListener('scroll', hideFileListBubble);
+      window.addEventListener('resize', hideFileListBubble);
+      // Save logic
+      // --- Save Bubble Modal ---
+      // Create save modal if not exists
+      let saveBubble = document.getElementById('saveBubble');
+      if (!saveBubble) {
+        saveBubble = document.createElement('div');
+        saveBubble.id = 'saveBubble';
+        saveBubble.style.display = 'none';
+        saveBubble.style.position = 'absolute';
+        saveBubble.style.zIndex = '2000';
+        saveBubble.style.minWidth = '220px';
+        saveBubble.style.maxWidth = '90vw';
+        saveBubble.style.maxHeight = '60vh';
+        saveBubble.style.overflow = 'auto';
+        saveBubble.style.background = '#fff';
+        saveBubble.style.border = '1px solid #e3e7ed';
+        saveBubble.style.boxShadow = '0 4px 16px rgba(60,72,100,0.13)';
+        saveBubble.style.borderRadius = '10px';
+        saveBubble.style.padding = '12px 0';
+        saveBubble.innerHTML = `
+          <div style="font-size:1.08em;font-weight:600;margin-bottom:8px;color:#3a4667;padding:0 18px;">Save As</div>
+          <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+        `;
+        document.body.appendChild(saveBubble);
+      }
+      const saveFileList = saveBubble.querySelector('#saveFileList');
+      // Helper to show/hide save bubble
+      function showSaveBubble() {
+        const rect = saveBtn.getBoundingClientRect();
+        saveBubble.style.display = 'block';
+        saveBubble.style.left = (rect.left + window.scrollX) + 'px';
+        saveBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      }
+      function hideSaveBubble() {
+        saveBubble.style.display = 'none';
+      }
+      // Hide on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (saveBubble.style.display === 'block' && !saveBubble.contains(e.target) && e.target !== saveBtn) {
+          hideSaveBubble();
+        }
+      });
+      window.addEventListener('scroll', hideSaveBubble);
+      window.addEventListener('resize', hideSaveBubble);
+      
+      // Save button click logic
+      saveBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (saveBubble.style.display === 'block') {
+          hideSaveBubble();
+          return;
+        }
+        saveFileList.innerHTML = '<li class="file-list-loading">Loading...</li>';
+        showSaveBubble();
+        try {
+          const resp = await fetch('/list');
+          if (!resp.ok) throw new Error('Failed to fetch file list');
+          const data = await resp.json();
+          const files = data.files || [];
+          const lastUsed = getLastUsedFile();
+          saveFileList.innerHTML = '';
+          files.forEach(filename => {
+            const li = document.createElement('li');
+            li.textContent = filename;
+            li.className = 'file-list-item';
+            li.tabIndex = 0;
+            if (filename === lastUsed) {
+              // li.style.background = '#ede9fe';
+              // li.style.color = '#4f46e5';
+              li.style.border = '2px solid #7c3aed';
+            }
+            li.addEventListener('click', async () => {
+              try {
+                const resp = await fetch('/save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ filename, content: mdInput.value })
+                });
+                if (!resp.ok) throw new Error('Failed to save file');
+                setLastUsedFile(filename);
+                hideSaveBubble();
+                alert('File saved!');
+              } catch (e) {
+                alert('Error saving file: ' + e.message);
+              }
+            });
+            li.addEventListener('keydown', (ev) => {
+              if (ev.key === 'Enter' || ev.key === ' ') {
+                li.click();
+              }
+            });
+            saveFileList.appendChild(li);
+          });
+          // --- New file textbox and confirm icon ---
+          const newLi = document.createElement('li');
+          newLi.style.display = 'flex';
+          newLi.style.alignItems = 'center';
+          // newLi.style.gap = '8px';
+          newLi.style.padding = '2px 8px';
+          // newLi.style.margin = '4px 8px';
+          newLi.style.borderRadius = '7px';
+          newLi.style.fontFamily = "'JetBrains Mono', 'Fira Mono', 'Consolas', 'Menlo', monospace";
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'New File...';
+          input.style.flex = '1';
+          input.style.padding = '6px 10px';
+          input.style.border = '2px solid #ede9fe';
+          input.style.borderRadius = '6px';
+          input.style.fontSize = '1em';
+          input.style.fontFamily = 'inherit';
+          input.style.background = '#fff';
+          input.style.color = '#4f46e5';
+          input.addEventListener('keydown', async (ev) => {
+            if (ev.key === 'Enter') {
+              const filename = input.value.trim();
+              if (!filename) {
+                input.focus();
+                return;
+              }
+              try {
+                const resp = await fetch('/save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ filename, content: mdInput.value })
+                });
+                if (!resp.ok) throw new Error('Failed to save file');
+                setLastUsedFile(filename);
+                hideSaveBubble();
+                alert('File saved!');
+              } catch (e) {
+                alert('Error saving file: ' + e.message);
+              }
+            }
+          });
+          newLi.appendChild(input);
+          saveFileList.appendChild(newLi);
+        } catch (e) {
+          saveFileList.innerHTML = '<li class="file-list-error">Error: ' + e.message + '</li>';
+        }
+      });
+      // AI Completion/Ask logic
+      const completionBtn = document.getElementById('completionBtn');
+      const askBtn = document.getElementById('askBtn');
+      async function aiRequest(type) {
+        const selected = mdInput.value.slice(mdInput.selectionStart, mdInput.selectionEnd);
+        const prompt = selected || mdInput.value;
+        if (!prompt.trim()) {
+          alert('Please select or enter some text for AI.');
+          return;
+        }
+        // Show loading indicator in editor
+        const oldValue = mdInput.value;
+        const start = mdInput.selectionStart;
+        const end = mdInput.selectionEnd;
+        const loadingText = '\n[AI is thinking...]\n';
+        mdInput.setRangeText(loadingText, start, end, 'end');
+        mdInput.dispatchEvent(new Event('input'));
+        try {
+          const resp = await fetch('/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, prompt })
+          });
+          if (!resp.ok) throw new Error('AI request failed');
+          const data = await resp.json();
+          let aiText = data.result || '[No response]';
+          // Replace loading text with AI response
+          const newValue = mdInput.value.replace(loadingText, aiText);
+          mdInput.value = newValue;
+          mdInput.dispatchEvent(new Event('input'));
+        } catch (e) {
+          // Restore old value and alert
+          mdInput.value = oldValue;
+          mdInput.dispatchEvent(new Event('input'));
+          alert('AI error: ' + e.message);
+        }
+      }
+      completionBtn.addEventListener('click', () => aiRequest('completion'));
+      askBtn.addEventListener('click', () => aiRequest('ask'));
     });
   </script>
   <!-- Table Insert Bubble -->
@@ -665,6 +1008,19 @@
       <input id="tableCols" type="number" min="1" max="10" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
     </div>
     <button id="tableInsertBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:1em;cursor:pointer;">Insert</button>
+  </div>
+  <!-- File List Modal -->
+  <div id="fileListModal" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Load From</div>
+    <ul id="fileList" style="list-style:none;padding:0 0 0 0;margin:0;">
+      <!-- Files will be populated here -->
+    </ul>
+    <!-- Close button removed -->
+  </div>
+  <!-- Save Bubble Modal -->
+  <div id="saveBubble" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Save To</div>
+    <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
   </div>
 </body>
 </html> 
