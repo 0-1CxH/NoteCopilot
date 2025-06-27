@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from .md2html_convert import Markdown2HTMLConverter
 import os
+import time
 
 class NoteCopilotServer:
     def __init__(self, static_folder, notes_folder):
@@ -25,11 +26,13 @@ class NoteCopilotServer:
         # List markdown files endpoint
         self.app.route('/list')(self.list_md_files)
         # AI mock endpoint
-        self.app.route('/ai')(self.ai_mock)
+        self.app.route('/ai', methods=['POST'])(self.ai_mock)
         # Save markdown file endpoint
         self.app.route('/save', methods=['POST'])(self.save_md_file)
         # Load markdown file endpoint
         self.app.route('/load')(self.load_md_file)
+        # Get function cards endpoint
+        self.app.route('/funcs')(self.get_funcs)
 
     def convert_markdown(self):
         data = request.get_json()
@@ -53,11 +56,21 @@ class NoteCopilotServer:
             return jsonify({'error': str(e)}), 500
 
     def ai_mock(self):
-        return jsonify({'response': 'this is a response'})
+        import time
+        time.sleep(1)
+        data = request.get_json()
+        def generate():
+            # Simulate streaming chunks
+            for word in [
+                "<details open>", "<summary>", f"{data['type']} response</summary>"
+                "<p>", f"### {data.get('query')} ###", "this is ", "a ", "streamed ", "response.",
+                f"</p><p> {data['content']} </p></details>"]:
+                yield word
+                time.sleep(0.4)
+        return Response(generate(), mimetype='text/plain')
 
     def save_md_file(self):
         data = request.get_json()
-        print(data)
         if not data or 'filename' not in data or 'content' not in data:
             return jsonify({'error': 'Missing name or content field'}), 400
         name = data['filename'] + '.md'
@@ -86,6 +99,36 @@ class NoteCopilotServer:
             return jsonify({'content': content})
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+    def get_funcs(self):
+        # Example function cards
+        funcs = [
+            {
+                'name': 'Summarize',
+                'description': 'Summarize the selected text or note.',
+                'icon': 'fas fa-align-left',
+                'template': 'template 1',
+            },
+            {
+                'name': 'Explain',
+                'description': 'Explain the selected concept in detail.',
+                'icon': 'fas fa-lightbulb',
+                'template': 'template 2',
+            },
+            {
+                'name': 'Translate',
+                'description': 'Translate the selected text to another language.',
+                'icon': 'fas fa-language',
+                'template': 'template 3',
+            },
+            {
+                'name': 'Generate Questions',
+                'description': 'Generate quiz questions from the selected content.',
+                'icon': 'fas fa-question-circle',
+                'template': 'template 4',
+            }
+        ]
+        return jsonify({'funcs': funcs * 8})
 
     def run(self, debug, port):
         self.app.run(debug=debug, port=port)

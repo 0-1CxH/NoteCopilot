@@ -157,7 +157,6 @@ Term 2
 ## Images and Files
 
 ### Regular Images
-![Sample Image](tests/a_picture.png)
 ![Alt Text](https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image)
 
 ### Images with Titles

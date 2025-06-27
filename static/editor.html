@@ -256,6 +256,89 @@
       text-align: center;
       font-size: 0.98em;
     }
+    /* --- Toast Notification Styles --- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      transform: translateX(-50%) translateY(100px);
+      min-width: 220px;
+      max-width: 90vw;
+      background: #32324d;
+      color: #fff;
+      font-size: 1.08em;
+      font-weight: 500;
+      padding: 16px 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px 0 rgba(60,72,100,0.18);
+      opacity: 0;
+      z-index: 3000;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    .toast.toast-error {
+      background: #e53e3e;
+      color: #fff;
+    }
+    .toast.toast-success {
+      background: #2563eb;
+      color: #fff;
+    }
+    /* --- Ask Bubble Card Grid --- */
+    #askFuncCards {
+      display: grid !important;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px 8px;
+      padding: 0 18px 10px 18px;
+      max-height: calc((60px + 12px) * 5); /* 5 rows, 60px card height + 12px gap */
+      overflow-y: auto;
+      min-width: 0;
+    }
+    #askBubble {
+      min-width: 700px !important;
+      max-width: 98vw !important;
+      width: auto !important;
+    }
+    #askFuncCards {
+      min-width: 660px;
+    }
+    .ask-func-card {
+      min-width: 110px;
+      max-width: 180px;
+      background: #f8fafc;
+      border: 1.5px solid #ede9fe;
+      border-radius: 8px;
+      padding: 10px 10px 8px 10px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+      box-sizing: border-box;
+      min-height: 60px;
+      height: auto;
+      word-break: break-word;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    @media (max-width: 1200px) {
+      #askFuncCards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 700px) {
+      #askFuncCards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   </style>
 
 </head>
@@ -263,7 +346,7 @@
   <nav class="menu-bar">
     <div class="menu-group">
       <button class="menu-btn" id="completionBtn" title="Completion"><span class="fas fa-magic"></span></button>
-      <button class="menu-btn" id="askBtn" title="Ask"><span class="fas fa-question-circle"></span></button>
+      <button class="menu-btn" id="askBtn" title="Ask"><span class="fas fa-brain"></span></button>
     </div>
     <div class="menu-group">
       <button class="menu-btn" title="Insert Code"><span class="fas fa-code"></span></button>
@@ -413,7 +496,7 @@
             handled = true;
             break;
           case 'h': // Highlight
-            insertAtCursor(mdInput, '<markdown-hlt>', '</markdown-hlt>', 'highlight');
+            insertAtCursor(mdInput, '==', '==', 'highlight');
             handled = true;
             break;
           case 's': // Strikethrough
@@ -722,7 +805,7 @@
               insertAtCursor(mdInput, '*', '*', 'italic');
               break;
             case 'Highlight':
-              insertAtCursor(mdInput, '<markdown-hlt>', '</markdown-hlt>', 'highlight');
+              insertAtCursor(mdInput, '==', '==', 'highlight');
               break;
             case 'Strikethrough':
               insertAtCursor(mdInput, '~~', '~~', 'strikethrough');
@@ -861,6 +944,17 @@
       window.addEventListener('scroll', hideSaveBubble);
       window.addEventListener('resize', hideSaveBubble);
       
+      // --- Toast Notification Logic ---
+      function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show toast-' + type;
+        // Remove after 10s
+        if (toast.toastTimeout) clearTimeout(toast.toastTimeout);
+        toast.toastTimeout = setTimeout(() => {
+          toast.className = 'toast';
+        }, 10000);
+      }
       // Save button click logic
       saveBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -883,8 +977,6 @@
             li.className = 'file-list-item';
             li.tabIndex = 0;
             if (filename === lastUsed) {
-              // li.style.background = '#ede9fe';
-              // li.style.color = '#4f46e5';
               li.style.border = '2px solid #7c3aed';
             }
             li.addEventListener('click', async () => {
@@ -897,9 +989,9 @@
                 if (!resp.ok) throw new Error('Failed to save file');
                 setLastUsedFile(filename);
                 hideSaveBubble();
-                alert('File saved!');
+                showToast('File saved!', 'success');
               } catch (e) {
-                alert('Error saving file: ' + e.message);
+                showToast('Error saving file: ' + e.message, 'error');
               }
             });
             li.addEventListener('keydown', (ev) => {
@@ -913,9 +1005,7 @@
           const newLi = document.createElement('li');
           newLi.style.display = 'flex';
           newLi.style.alignItems = 'center';
-          // newLi.style.gap = '8px';
           newLi.style.padding = '2px 8px';
-          // newLi.style.margin = '4px 8px';
           newLi.style.borderRadius = '7px';
           newLi.style.fontFamily = "'JetBrains Mono', 'Fira Mono', 'Consolas', 'Menlo', monospace";
           const input = document.createElement('input');
@@ -945,9 +1035,9 @@
                 if (!resp.ok) throw new Error('Failed to save file');
                 setLastUsedFile(filename);
                 hideSaveBubble();
-                alert('File saved!');
+                showToast('File saved!', 'success');
               } catch (e) {
-                alert('Error saving file: ' + e.message);
+                showToast('Error saving file: ' + e.message, 'error');
               }
             }
           });
@@ -960,42 +1050,69 @@
       // AI Completion/Ask logic
       const completionBtn = document.getElementById('completionBtn');
       const askBtn = document.getElementById('askBtn');
-      async function aiRequest(type) {
+      const COMPLETION_TYPE = 'completion';
+      completionBtn.addEventListener('click', async () => {
         const selected = mdInput.value.slice(mdInput.selectionStart, mdInput.selectionEnd);
-        const prompt = selected || mdInput.value;
-        if (!prompt.trim()) {
-          alert('Please select or enter some text for AI.');
-          return;
-        }
+        const content = selected || mdInput.value;
+        // if (!content) {
+        //   alert('Please select or enter some text for AI.');
+        //   return;
+        // }
         // Show loading indicator in editor
         const oldValue = mdInput.value;
         const start = mdInput.selectionStart;
         const end = mdInput.selectionEnd;
-        const loadingText = '\n[AI is thinking...]\n';
-        mdInput.setRangeText(loadingText, start, end, 'end');
+        const loadingText = '\n> AI is thinking...\n';
+        let loadingStart, loadingEnd;
+        if (selected) {
+          // Insert loading text after selection
+          mdInput.setRangeText(selected + loadingText, start, end, 'end');
+          loadingStart = start + selected.length;
+          loadingEnd = loadingStart + loadingText.length;
+        } else {
+          // Insert loading text at the end
+          mdInput.setRangeText(loadingText, mdInput.value.length, mdInput.value.length, 'end');
+          loadingStart = mdInput.value.length - loadingText.length;
+          loadingEnd = mdInput.value.length;
+        }
+        mdInput.setSelectionRange(loadingEnd, loadingEnd);
         mdInput.dispatchEvent(new Event('input'));
         try {
           const resp = await fetch('/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type, prompt })
+            body: JSON.stringify({ type: COMPLETION_TYPE, content })
           });
           if (!resp.ok) throw new Error('AI request failed');
-          const data = await resp.json();
-          let aiText = data.result || '[No response]';
-          // Replace loading text with AI response
-          const newValue = mdInput.value.replace(loadingText, aiText);
-          mdInput.value = newValue;
-          mdInput.dispatchEvent(new Event('input'));
+          const reader = resp.body.getReader();
+          let aiText = '';
+          let decoder = new TextDecoder();
+          let currentLoadingStart = loadingStart;
+          let currentLoadingEnd = loadingEnd;
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            aiText += decoder.decode(value, { stream: true });
+            // Always use the original loadingStart and loadingEnd to replace the region
+            const valueBefore = mdInput.value.slice(0, currentLoadingStart);
+            const valueAfter = mdInput.value.slice(currentLoadingEnd);
+            mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
+            // Update the end index for the next replacement
+            currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1; // +1 for leading/trailing \n
+            mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
+            mdInput.dispatchEvent(new Event('input'));
+          }
         } catch (e) {
-          // Restore old value and alert
-          mdInput.value = oldValue;
+          // Remove loading text and alert
+          const valueBefore = mdInput.value.slice(0, loadingStart);
+          const valueAfter = mdInput.value.slice(loadingEnd);
+          mdInput.value = valueBefore + valueAfter;
+          mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
           mdInput.dispatchEvent(new Event('input'));
-          alert('AI error: ' + e.message);
+          showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
         }
-      }
-      completionBtn.addEventListener('click', () => aiRequest('completion'));
-      askBtn.addEventListener('click', () => aiRequest('ask'));
+      });
+      
     });
   </script>
   <!-- Table Insert Bubble -->
@@ -1022,5 +1139,149 @@
     <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Save To</div>
     <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
   </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+  <!-- Ask Bubble Modal -->
+  <div id="askBubble" style="display:none;position:absolute;z-index:2000;min-width:260px;max-width:95vw;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:12px;padding:18px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:12px;color:#3a4667;padding:0 18px;">Ask Copilot</div>
+    <div id="askFuncCards" style="display:flex;flex-wrap:wrap;gap:12px 8px;padding:0 18px 10px 18px;"></div>
+    <div style="display:flex;gap:8px;padding:0 18px 8px 18px;align-items:center;border-top: 2px dashed #4f46e5;padding-top: 8px;">
+      <textarea id="askQueryInput" rows="5" placeholder="Type your question..." style="flex:1;padding:7px 12px;border:1.5px solid #ede9fe;border-radius:7px;font-size:1em;font-family:inherit;background:#fff;color:#4f46e5;resize:vertical;min-height:38px;max-height:120px;line-height:1.4;"></textarea>
+      <button id="askSubmitBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:1em;cursor:pointer;align-self:flex-end;height:38px;">Ask</button>
+    </div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const askBtn = document.getElementById('askBtn');
+    const askBubble = document.getElementById('askBubble');
+    const askFuncCards = document.getElementById('askFuncCards');
+    const askQueryInput = document.getElementById('askQueryInput');
+    const askSubmitBtn = document.getElementById('askSubmitBtn');
+    let askBubbleOpen = false;
+    let selectedFunc = null;
+    function showAskBubble() {
+      const rect = askBtn.getBoundingClientRect();
+      askBubble.style.display = 'block';
+      askBubble.style.left = (rect.left + window.scrollX) + 'px';
+      askBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      askBubbleOpen = true;
+      askQueryInput.focus();
+    }
+    function hideAskBubble() {
+      askBubble.style.display = 'none';
+      askBubbleOpen = false;
+      selectedFunc = null;
+    }
+    askBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (askBubbleOpen) {
+        hideAskBubble();
+        return;
+      }
+      askFuncCards.innerHTML = '<div style="color:#888;font-size:0.98em;">Loading...</div>';
+      showAskBubble();
+      try {
+        const resp = await fetch('/funcs');
+        if (!resp.ok) throw new Error('Failed to fetch functions');
+        const data = await resp.json();
+        const funcs = data.funcs || [];
+        askFuncCards.innerHTML = '';
+        funcs.forEach(func => {
+          const card = document.createElement('div');
+          card.className = 'ask-func-card';
+          card.style.cssText = 'flex:1 1 120px;min-width:110px;max-width:180px;background:#f8fafc;border:1.5px solid #ede9fe;border-radius:8px;padding:10px 10px 8px 10px;cursor:pointer;transition:box-shadow 0.2s,border 0.2s;display:flex;flex-direction:column;gap:4px;align-items:flex-start;';
+          card.innerHTML = `<span class="${func.icon}" style="color:#4f46e5;font-size:1.3em;margin-bottom:2px;"></span><div style="font-weight:600;font-size:1em;color:#3a4667;">${func.name}</div><div style="font-size:0.97em;color:#7a869a;">${func.description}</div>`;
+          card.addEventListener('click', () => {
+            selectedFunc = func.name;
+            askQueryInput.value += ` ${func.template} `;
+            askQueryInput.focus();
+            // Highlight selected
+            askFuncCards.querySelectorAll('.ask-func-card').forEach(c => c.style.border = '1.5px solid #ede9fe');
+            card.style.border = '2.5px solid #4f46e5';
+          });
+          askFuncCards.appendChild(card);
+        });
+      } catch (e) {
+        askFuncCards.innerHTML = '<div style="color:#e53e3e;font-size:0.98em;">Error: ' + e.message + '</div>';
+      }
+    });
+    // Hide on outside click
+    document.addEventListener('mousedown', (e) => {
+      if (askBubbleOpen && !askBubble.contains(e.target) && e.target !== askBtn) {
+        hideAskBubble();
+      }
+    });
+    window.addEventListener('scroll', hideAskBubble);
+    window.addEventListener('resize', hideAskBubble);
+    // Submit logic
+    askSubmitBtn.addEventListener('click', async () => {
+      const selected = mdInput.value.slice(mdInput.selectionStart, mdInput.selectionEnd);
+      const content = selected || mdInput.value;
+      const query = askQueryInput.value.trim();
+      // if (!content && !query) {
+      //   alert('Please select or enter some text for AI.');
+      //   return;
+      // }
+      hideAskBubble();
+      // Insert loading text as in autoCompletionRequest
+      const oldValue = mdInput.value;
+      const start = mdInput.selectionStart;
+      const end = mdInput.selectionEnd;
+      const loadingText = '\n> AI is thinking...\n';
+      let loadingStart, loadingEnd;
+      if (selected) {
+        mdInput.setRangeText(selected + loadingText, start, end, 'end');
+        loadingStart = start + selected.length;
+        loadingEnd = loadingStart + loadingText.length;
+      } else {
+        mdInput.setRangeText(loadingText, mdInput.value.length, mdInput.value.length, 'end');
+        loadingStart = mdInput.value.length - loadingText.length;
+        loadingEnd = mdInput.value.length;
+      }
+      mdInput.setSelectionRange(loadingEnd, loadingEnd);
+      mdInput.dispatchEvent(new Event('input'));
+      try {
+        const resp = await fetch('/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'ask', content, query })
+        });
+        if (!resp.ok) throw new Error('AI request failed');
+        const reader = resp.body.getReader();
+        let aiText = '';
+        let decoder = new TextDecoder();
+        let currentLoadingStart = loadingStart;
+        let currentLoadingEnd = loadingEnd;
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          aiText += decoder.decode(value, { stream: true });
+          const valueBefore = mdInput.value.slice(0, currentLoadingStart);
+          const valueAfter = mdInput.value.slice(currentLoadingEnd);
+          mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
+          currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1;
+          mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
+          mdInput.dispatchEvent(new Event('input'));
+        }
+      } catch (e) {
+        const valueBefore = mdInput.value.slice(0, loadingStart);
+        const valueAfter = mdInput.value.slice(loadingEnd);
+        mdInput.value = valueBefore + valueAfter;
+        mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
+        mdInput.dispatchEvent(new Event('input'));
+        showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
+      }
+    });
+    askQueryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        askSubmitBtn.click();
+      }
+      // Shift+Enter inserts a new line (default behavior for textarea)
+    });
+    // Set Ask submit button to up arrow icon
+    askSubmitBtn.innerHTML = '<span class="fas fa-arrow-up"></span>';
+  });
+  </script>
 </body>
 </html> 
