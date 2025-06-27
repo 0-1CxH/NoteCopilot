@@ -38,14 +38,15 @@
       flex-direction: column;
       transition: background 0.3s;
       overflow: auto;
+      padding: 24px; /* Add this line */
     }
     .pane.left {
       border-right: 2px solid #e3e7ed;
-      background: linear-gradient(120deg, #f7f8fa 0%, #e9ecf3 100%);
+      background: linear-gradient(120deg, #f0f2f6 0%, #e2e6ef 100%);
       transition: background 0.5s;
     }
     .pane.right {
-      background: #fff;
+      background: linear-gradient(120deg, #fafbfd 0%, #f5f7fa 100%);
       transition: background 0.5s;
       position: relative;
     }
@@ -56,7 +57,7 @@
       outline: none;
       resize: none;
       font-size: 1.1rem;
-      padding: 32px 24px;
+      /* padding: 32px 24px; */
       background: transparent;
       color: #222;
       font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
@@ -64,16 +65,18 @@
     }
     .editor:focus {
       background: #f0f4fa;
+      /* border: 2px dashed linear-gradient(120deg, #f7f8fa 0%, #e9ecf3 100%); */
       transition: background 0.3s;
     }
     .preview {
       width: 100%;
       height: 100%;
-      padding: 32px 24px;
+      /* padding: 32px 24px; */
       overflow: auto;
       font-size: 1.1rem;
       animation: fadeIn 0.4s;
       transition: background 0.3s;
+      border: none;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(16px); }
@@ -225,7 +228,7 @@
     }
   </style>
   <!-- Marked.js for Markdown parsing (placeholder for backend) -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
 </head>
 <body>
   <nav class="menu-bar">
