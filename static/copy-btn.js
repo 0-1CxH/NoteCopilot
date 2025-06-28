@@ -78,7 +78,7 @@ function addCopyButtons() {
                     btn.style.display = 'block';
                 }
                 // Add blur effect to box-shadow
-                block.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.3)';
+                block.style.boxShadow = '0 0 20px rgba(25, 98, 244, 0.6)';
             });
             block.addEventListener('mouseleave', () => {
                 if (sel !== 'ai-message-component-think' && sel !== 'ai-message-component-response') {
