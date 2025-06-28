@@ -525,6 +525,7 @@
     const htmlPreview = document.getElementById('htmlPreview');
     let lastController = null;
     let editorFrozen = false;
+    let lastScrollPosition = 0; // Add this line to store scroll position
 
     // Helper to freeze/unfreeze editor
     function freezeEditor() {
@@ -578,6 +579,10 @@
       if (lastController) lastController.abort();
       const controller = new AbortController();
       lastController = controller;
+      
+      // Store current scroll position before updating
+      lastScrollPosition = mdInput.scrollTop;
+      
       showLoading();
       try {
         const resp = await fetch('/convert', {
@@ -592,6 +597,13 @@
         doc.open();
         doc.write(data.html);
         doc.close();
+        
+        // Restore scroll position after preview update
+        mdInput.scrollTop = lastScrollPosition;
+        // setTimeout(() => {
+        //   mdInput.scrollTop = lastScrollPosition;
+        // }, 1);
+        
         // --- MathJax typeset trigger ---
         function tryTypesetMathJax() {
           const win = htmlPreview.contentWindow;
@@ -1214,7 +1226,7 @@
         const content = selected || mdInput.value.slice(0, start);
         // Show loading indicator in editor
         const oldValue = mdInput.value;
-        const loadingText = '\n!!!note\n    AI is thinking...\n';
+        const loadingText = '\n<ai-message><ai-message-component-think>\nAI is thinking...\n</ai-message-component-think></ai-message>\n';
         let loadingStart, loadingEnd;
         if (selected) {
           // Insert loading text after selection
@@ -1339,7 +1351,7 @@
         hideAskBubble();
         // Insert loading text as in autoCompletionRequest
         const oldValue = mdInput.value;
-        const loadingText = '\n!!!note\n    AI is thinking...\n';
+        const loadingText = '\n<ai-message><ai-message-component-think>\nAI is thinking...\n</ai-message-component-think></ai-message>\n';
         let loadingStart, loadingEnd;
         if (selected) {
           mdInput.setRangeText(selected + loadingText, start, end, 'end');

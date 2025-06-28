@@ -57,17 +57,17 @@ class NoteCopilotServer:
 
     def ai_mock(self):
         import time
-        time.sleep(3)
+        time.sleep(2)
         data = request.get_json()
         print(data)
         def generate():
             # Simulate streaming chunks
             for word in [
-                "<ai-message>", "<ai-message-component-think>", f"{data['type']} response</ai-message-component-think>"
-                "<ai-message-component-response>", f"### {data.get('query')} ###</ai-message-component-response>", "<tool_response>this is ", "a ", "streamed ", "response.",
-                f"</tool_response> {data['content']} </ai-message>"]:
+                "<ai-message><ai-message-component-think>", f"The *type* of **ai request** is ==", f"{data['type']}", "==</ai-message-component-think>"
+                "<ai-message-component-response>", f"### the query entered is <u>{data.get('query')}</u> \n >", "- this is ", "a ", "streamed ", "response \n- ",
+                "the content entered is: \n```\n", f"{data['content']}\n", "```", "\n</ai-message-component-response></ai-message>"]:
                 yield word
-                time.sleep(2)
+                time.sleep(0.4)
         return Response(generate(), mimetype='text/plain')
 
     def save_md_file(self):

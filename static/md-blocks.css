@@ -614,6 +614,11 @@ ai-message-component-response pre code {
   padding: 0;
 }
 
+ai-message-component-think .highlighttable,
+ai-message-component-response.highlighttable {
+  overflow-x: scroll;
+}
+
 /* Blockquotes inside ai-message components */
 ai-message-component-think blockquote,
 ai-message-component-response blockquote {
