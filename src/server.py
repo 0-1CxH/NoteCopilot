@@ -63,9 +63,9 @@ class NoteCopilotServer:
         def generate():
             # Simulate streaming chunks
             for word in [
-                "<details open>", "<summary>", f"{data['type']} response</summary>"
-                "<p>", f"### {data.get('query')} ###", "this is ", "a ", "streamed ", "response.",
-                f"</p><p> {data['content']} </p></details>"]:
+                "<ai-message>", "<ai-message-component-think>", f"{data['type']} response</ai-message-component-think>"
+                "<ai-message-component-response>", f"### {data.get('query')} ###</ai-message-component-response>", "<tool_response>this is ", "a ", "streamed ", "response.",
+                f"</tool_response> {data['content']} </ai-message>"]:
                 yield word
                 time.sleep(2)
         return Response(generate(), mimetype='text/plain')

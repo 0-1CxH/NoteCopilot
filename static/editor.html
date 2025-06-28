@@ -450,41 +450,68 @@
   </div>
   <!-- Help Modal -->
   <div id="helpModal" style="display:none;position:fixed;z-index:3000;left:0;top:0;width:100vw;height:100vh;background:rgba(60,72,100,0.13);backdrop-filter:blur(1.5px);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:14px;box-shadow:0 4px 32px 0 rgba(60,72,100,0.18);padding:32px 32px 24px 32px;max-width:98vw;width:400px;position:relative;">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 4px 32px 0 rgba(60,72,100,0.18);padding:32px 32px 24px 32px;max-width:98vw;width:1000px;position:relative;">
       <div style="font-size:1.3em;font-weight:700;color:#3a4667;margin-bottom:18px;text-align:center;">Help</div>
       <ul style="list-style:none;padding:0;margin:0 0 8px 0;font-size:1.08em;color:#3a4667;">
       <!-- INSERT_YOUR_CODE -->
       <li style="margin-bottom:10px;">
         <b>AI Features</b>
         <ul style="margin-top:6px;margin-bottom:6px;">
-          <li><b>Completion</b>: Select text or place the cursor, then click the <b>Completion</b> (<span class="fas fa-magic"></span>) button or press <b>Ctrl+Q</b>. AI will continue or complete your text.</li>
-          
-          <li><b>Ask Copilot</b>: Select text or place the cursor, then click the <b>Ask</b> (<span class="fas fa-brain"></span>) button or press <b>Ctrl+Q</b>, select the prompt template and type your query. AI will answer your query. Note: when typin query, use <b>Shift+Enter</b> for new line and <b>Enter</b> for submitting the query.</li>
+          <li><b>Completion</b>: Select text or place the cursor, then click the <span class="fas fa-magic"></span> button or press <b>Ctrl+Q</b>. AI will continue or complete your text.</li>
+          <li><p><b>Ask Copilot</b>: Select text or place the cursor, then click the <span class="fas fa-brain"></span> button or press <b>Ctrl+Q</b>, enter your query with the help of pre-defined templates. AI will answer your query.</p><p>Note: when entering your query, use <b>Shift+Enter</b> for a new line and <b>Enter</b> for submitting the query.</li></p></li>
+
         </ul>
       </li>
       <li style="margin-bottom:10px;">
-        <b>Keyboard Shortcuts</b>
-        <table style="width:100%;font-size:0.98em;border-collapse:collapse;">
-          <tbody>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+B</b></td><td style="padding:2px 8px;">Bold</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+I</b></td><td style="padding:2px 8px;">Italic</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+H</b></td><td style="padding:2px 8px;">Highlight</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+S</b></td><td style="padding:2px 8px;">Save</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+L</b></td><td style="padding:2px 8px;">Load</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+M</b></td><td style="padding:2px 8px;">Export Markdown</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+N</b></td><td style="padding:2px 8px;">Export HTML</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+W</b></td><td style="padding:2px 8px;">Ask Copilot (AI)</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Ctrl+Q</b></td><td style="padding:2px 8px;">Completion (AI)</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Tab</b></td><td style="padding:2px 8px;">Indent</td></tr>
-            <tr><td style="padding:2px 8px;"><b>Shift+Tab</b></td><td style="padding:2px 8px;">Unindent</td></tr>
-          </tbody>
-        </table>
+        <b>Menu Buttons</b>
+        <div style="display:flex;gap:20px;">
+          <table style="flex:1;font-size:0.98em;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Icon</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Description</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Keyboard Shortcut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-magic"></span></td><td style="padding:2px 8px;">Completion (AI)</td><td style="padding:2px 8px;"><b>Ctrl+Q</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-brain"></span></td><td style="padding:2px 8px;">Ask Copilot (AI)</td><td style="padding:2px 8px;"><b>Ctrl+W</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-code"></span></td><td style="padding:2px 8px;">Code Block</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-table"></span></td><td style="padding:2px 8px;">Table</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-list-ul"></span></td><td style="padding:2px 8px;">Table of Content</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-quote-left"></span></td><td style="padding:2px 8px;">Blockquote</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-check-square"></span></td><td style="padding:2px 8px;">TODO</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-square-root-alt"></span></td><td style="padding:2px 8px;">LaTeX</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-chevron-circle-down"></span></td><td style="padding:2px 8px;">Detail</td><td style="padding:2px 8px;"><b></b></td></tr>
+            </tbody>
+          </table>
+          <table style="flex:1;font-size:0.98em;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Icon</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Description</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Keyboard Shortcut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-bold"></span></td><td style="padding:2px 8px;">Bold</td><td style="padding:2px 8px;"><b>Ctrl+B</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-italic"></span></td><td style="padding:2px 8px;">Italic</td><td style="padding:2px 8px;"><b>Ctrl+I</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-highlighter"></span></td><td style="padding:2px 8px;">Highlight</td><td style="padding:2px 8px;"><b>Ctrl+H</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-strikethrough"></span></td><td style="padding:2px 8px;">Strikethrough</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-underline"></span></td><td style="padding:2px 8px;">Underline</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-folder-open"></span></td><td style="padding:2px 8px;">Load</td><td style="padding:2px 8px;"><b>Ctrl+L</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-save"></span></td><td style="padding:2px 8px;">Save</td><td style="padding:2px 8px;"><b>Ctrl+S</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fab fa-markdown"></span></td><td style="padding:2px 8px;">Export Markdown</td><td style="padding:2px 8px;"><b>Ctrl+M</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-globe"></span></td><td style="padding:2px 8px;">Export HTML</td><td style="padding:2px 8px;"><b>Ctrl+N</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="far fa-file-pdf"></span></td><td style="padding:2px 8px;">Export PDF</td><td style="padding:2px 8px;"><b></b></td></tr>
+            </tbody>
+          </table>
+        </div>
       </li>
       <li>
-        <b>Other Tips</b>
+        <b>Auto Save</b>
         <ul style="margin-top:6px;">
-          <li>Use the <b>Insert</b> buttons above the editor to quickly add tables, code blocks, LaTeX, and more.</li>
-          <li>Click outside this window or press <b>Esc</b> to close Help.</li>
+          <li>If current note is loaded or saved already, the <b>CTRL+S</b> will save the note without making you choose a filename, also, it will be automatically saved every 60 seconds.</li>
         </ul>
       </li>
       </ul>

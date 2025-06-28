@@ -21,6 +21,7 @@
   --danger: #e11d48;
   --success: #00c851;
   --code-bg: #f3f6fa;
+  --ai-color: rgba(249, 115, 22, 0.95);
   --font-sans: system-ui, -apple-system, sans-serif;
   --font-mono: 'SF Mono', Consolas, monospace;
   --radius: 6px;
@@ -29,6 +30,7 @@
   --space-md: 1.5rem;
   --space-lg: 2rem;
   --space-xl: 3rem;
+  --space-xxl: 4rem;
   --code-font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
   --gradient-blue: linear-gradient(90deg, #38bdf8 0%, #6366f1 100%);
   --gradient-info: linear-gradient(90deg, #e0f2fe 0%, #fff 100%);
@@ -450,7 +452,7 @@ markdown-hlt:hover, markdown-hlt:focus {
   position: absolute;
   top: 8px;
   left: 8px;
-  z-index: 10;
+  z-index: 10000;
   display: none;
   padding: 4px 10px;
   font-size: 0.95em;
@@ -468,6 +470,197 @@ markdown-hlt:hover, markdown-hlt:focus {
   outline: 2px solid var(--accent);
 }
 
+/* AI Message Components */
+ai-message {
+  display: block;
+  margin: var(--space-lg) 0;
+  padding: var(--space-sm);
+  padding-top: var(--space-xxl);
+  padding-bottom: var(--space-lg);
+  border-radius: var(--radius);
+  /* background: rgba(255, 255, 255, 0.1); */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); */
+  position: relative;
+  overflow: visible;
+}
+
+ai-message::before {
+  content: "AI Message From Note Copilot";
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-md);
+  font-family: var(--code-font-family);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 3;
+  color: var(--ai-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+ai-message-component-think {
+  display: block;
+  padding: var(--space-md);
+  padding-top: var(--space-lg);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: rgba(255, 237, 213, 0.7);
+  color: var(--ai-color);
+  font-style: italic;
+  backdrop-filter: blur(16px);
+  border: 4px solid rgba(249, 115, 22, 0.3);
+  border-bottom: none;
+  position: relative;
+  box-shadow: 0 4px 16px 0 rgba(251, 146, 60, 0.35), 0 4px 8px 0 rgba(251, 146, 60, 0.15);
+}
+
+/* Start of Selection */
+ai-message-component-response {
+  display: block;
+  padding: var(--space-md);
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: rgba(250, 250, 255, 0.5);
+  backdrop-filter: blur(16px);
+  /* border: 4px solid rgba(168, 85, 247, 0.3); */
+  border: 4px solid rgba(249, 115, 22, 0.3);
+  border-top: none;
+  position: relative;
+  box-shadow: 4px 4px 16px 4px rgba(249, 115, 22, 0.15), 0 4px 8px 0 rgba(249, 115, 22, 0.15);
+}
+
+/* Simplified styles for basic elements inside ai-message components */
+ai-message-component-think h1,
+ai-message-component-think h2,
+ai-message-component-think h3,
+ai-message-component-think h4,
+ai-message-component-think h5,
+ai-message-component-think h6,
+ai-message-component-response h1,
+ai-message-component-response h2,
+ai-message-component-response h3,
+ai-message-component-response h4,
+ai-message-component-response h5,
+ai-message-component-response h6 {
+  color: inherit;
+  margin: 0.5rem 0 0.25rem 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+ai-message-component-think h1,
+ai-message-component-response h1 {
+  font-size: 1.4rem;
+}
+
+ai-message-component-think h2,
+ai-message-component-response h2 {
+  font-size: 1.2rem;
+}
+
+ai-message-component-think h3,
+ai-message-component-response h3 {
+  font-size: 1.1rem;
+}
+
+ai-message-component-think h4,
+ai-message-component-think h5,
+ai-message-component-think h6,
+ai-message-component-response h4,
+ai-message-component-response h5,
+ai-message-component-response h6 {
+  font-size: 1rem;
+}
+
+/* Tables inside ai-message components */
+ai-message-component-think table,
+ai-message-component-response table {
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+ai-message-component-think th,
+ai-message-component-think td,
+ai-message-component-response th,
+ai-message-component-response td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+}
+
+ai-message-component-think th,
+ai-message-component-response th {
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+/* Code inside ai-message components */
+ai-message-component-think code,
+ai-message-component-response code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: inherit;
+}
+
+ai-message-component-think pre,
+ai-message-component-response pre {
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+ai-message-component-think pre code,
+ai-message-component-response pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Blockquotes inside ai-message components */
+ai-message-component-think blockquote,
+ai-message-component-response blockquote {
+  border-left: 3px solid rgba(0, 0, 0, 0.2);
+  margin: 0.5rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  color: inherit;
+  font-style: italic;
+}
+
+ai-message-component-think blockquote p,
+ai-message-component-response blockquote p {
+  margin: 0;
+}
+
+/* Lists inside ai-message components */
+ai-message-component-think ul,
+ai-message-component-think ol,
+ai-message-component-response ul,
+ai-message-component-response ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+ai-message-component-think li,
+ai-message-component-response li {
+  margin: 0.25rem 0;
+  color: inherit;
+}
+
+/* Paragraphs inside ai-message components */
+ai-message-component-think p,
+ai-message-component-response p {
+  margin: 0.5rem 0;
+  color: inherit;
+}
+
+
+
 </style>
 
     
@@ -481,90 +674,9 @@ markdown-hlt:hover, markdown-hlt:focus {
 <ul>
 <li><a class="jump-link" href="#sample-markdown-document-with-comprehensive-syntax">Sample Markdown Document with Comprehensive Syntax</a><ul>
 <li><a class="jump-link" href="#table-of-contents-and-navigation">Table of Contents and Navigation</a></li>
-<li><a class="jump-link" href="#code-examples-code-examples">Code Examples {#code-examples}</a><ul>
-<li><a class="jump-link" href="#code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</a></li>
-<li><a class="jump-link" href="#different-language-examples">Different Language Examples</a></li>
-<li><a class="jump-link" href="#code-block-without-language">Code Block Without Language</a></li>
+<li><a class="jump-link" href="#ai-message-test">AI Message Test</a></li>
 </ul>
 </li>
-<li><a class="jump-link" href="#tables-tables">Tables {#tables}</a><ul>
-<li><a class="jump-link" href="#basic-table">Basic Table</a></li>
-<li><a class="jump-link" href="#table-with-alignment">Table with Alignment</a></li>
-<li><a class="jump-link" href="#complex-table">Complex Table</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#task-lists-task-lists">Task Lists {#task-lists}</a><ul>
-<li><a class="jump-link" href="#todo-items">TODO Items</a></li>
-<li><a class="jump-link" href="#nested-task-lists">Nested Task Lists</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#quote-examples">Quote Examples</a><ul>
-<li><a class="jump-link" href="#simple-blockquote">Simple Blockquote</a></li>
-<li><a class="jump-link" href="#nested-blockquotes">Nested Blockquotes</a></li>
-<li><a class="jump-link" href="#blockquote-with-other-elements">Blockquote with Other Elements</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#this-is-a-header-in-blockquote">This is a header in blockquote</a></li>
-<li><a class="jump-link" href="#list-examples">List Examples</a><ul>
-<li><a class="jump-link" href="#unordered-lists">Unordered Lists</a></li>
-<li><a class="jump-link" href="#ordered-lists">Ordered Lists</a></li>
-<li><a class="jump-link" href="#mixed-lists">Mixed Lists</a></li>
-<li><a class="jump-link" href="#definition-lists">Definition Lists</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#images-and-files">Images and Files</a><ul>
-<li><a class="jump-link" href="#regular-images">Regular Images</a></li>
-<li><a class="jump-link" href="#images-with-titles">Images with Titles</a></li>
-<li><a class="jump-link" href="#local-files">Local Files</a></li>
-<li><a class="jump-link" href="#reference-style-images">Reference Style Images</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#links-and-references-links-and-references">Links and References {#links-and-references}</a><ul>
-<li><a class="jump-link" href="#regular-links">Regular Links</a></li>
-<li><a class="jump-link" href="#automatic-links">Automatic Links</a></li>
-<li><a class="jump-link" href="#reference-style-links">Reference Style Links</a></li>
-<li><a class="jump-link" href="#links-with-titles">Links with Titles</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#advanced-formatting">Advanced Formatting</a><ul>
-<li><a class="jump-link" href="#text-formatting">Text Formatting</a></li>
-<li><a class="jump-link" href="#keyboard-keys">Keyboard Keys</a></li>
-<li><a class="jump-link" href="#line-breaks">Line Breaks</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#horizontal-rules">Horizontal Rules</a></li>
-<li><a class="jump-link" href="#footnotes">Footnotes</a></li>
-<li><a class="jump-link" href="#math-equations-if-supported">Math Equations (if supported)</a></li>
-<li><a class="jump-link" href="#emoji-support">Emoji Support</a></li>
-<li><a class="jump-link" href="#html-mixed-in">HTML Mixed In</a></li>
-<li><a class="jump-link" href="#code-spans-and-escaping">Code Spans and Escaping</a></li>
-<li><a class="jump-link" href="#special-characters-and-entities">Special Characters and Entities</a></li>
-<li><a class="jump-link" href="#admonitionsalerts-if-supported">Admonitions/Alerts (if supported)</a></li>
-<li><a class="jump-link" href="#mermaid-diagrams-if-supported">Mermaid Diagrams (if supported)</a></li>
-<li><a class="jump-link" href="#headers-of-all-levels">Headers of All Levels</a></li>
-</ul>
-</li>
-<li><a class="jump-link" href="#h1-header">H1 Header</a><ul>
-<li><a class="jump-link" href="#h2-header">H2 Header</a><ul>
-<li><a class="jump-link" href="#h3-header">H3 Header</a><ul>
-<li><a class="jump-link" href="#h4-header">H4 Header</a><ul>
-<li><a class="jump-link" href="#h5-header">H5 Header</a><ul>
-<li><a class="jump-link" href="#h6-header">H6 Header</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="jump-link" href="#complex-example">Complex Example</a><ul>
-<li><a class="jump-link" href="#quote-with-header">Quote with Header</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="jump-link" href="#code-block-inside-blockquote">Code block inside blockquote</a></li>
 </ul>
 </div>
 <h1 id="sample-markdown-document-with-comprehensive-syntax">Sample Markdown Document with Comprehensive Syntax</h1>
@@ -577,7 +689,134 @@ markdown-hlt:hover, markdown-hlt:focus {
 <li><a class="jump-link" href="#links-and-references">Links and References</a></li>
 </ul>
 <hr/>
-<h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
+<h2 id="ai-message-test">AI Message Test</h2><ai-message><ai-message-component-think data-original-content='# Think Component H1
+## Think Component H2
+### Think Component H3
+
+This is a **bold** paragraph with `inline code` in the think component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+&gt; This is a blockquote in the think component.
+
+| Think | Table | Test |
+|-------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```python
+def think_function():
+    return "This is code in think component"
+```'><h1 id="think-component-h1">Think Component H1</h1>
+<h2 id="think-component-h2">Think Component H2</h2>
+<h3 id="think-component-h3">Think Component H3</h3>
+<p>This is a <strong>bold</strong> paragraph with <code>inline code</code> in the think component.</p>
+<ul>
+<li>List item 1</li>
+<li>List item 2</li>
+<li>Nested item</li>
+<li>
+<p>List item 3</p>
+</li>
+<li>
+<p>Ordered item 1</p>
+</li>
+<li>Ordered item 2</li>
+</ul>
+<blockquote>
+<p>This is a blockquote in the think component.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Think</th>
+<th>Table</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data 1</td>
+<td>Data 2</td>
+<td>Data 3</td>
+</tr>
+</tbody>
+</table>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">think_function</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">"This is code in think component"</span>
+</code></pre></div>
+</td></tr></table></ai-message-component-think><ai-message-component-response data-original-content='# Response Component H1
+## Response Component H2
+### Response Component H3
+
+This is a **bold** paragraph with `inline code` in the response component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+&gt; This is a blockquote in the response component.
+
+| Response | Table | Test |
+|----------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```javascript
+function responseFunction() {
+    return "This is code in response component";
+}
+```'><h1 id="response-component-h1">Response Component H1</h1>
+<h2 id="response-component-h2">Response Component H2</h2>
+<h3 id="response-component-h3">Response Component H3</h3>
+<p>This is a <strong>bold</strong> paragraph with <code>inline code</code> in the response component.</p>
+<ul>
+<li>List item 1</li>
+<li>List item 2</li>
+<li>Nested item</li>
+<li>
+<p>List item 3</p>
+</li>
+<li>
+<p>Ordered item 1</p>
+</li>
+<li>Ordered item 2</li>
+</ul>
+<blockquote>
+<p>This is a blockquote in the response component.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Response</th>
+<th>Table</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data 1</td>
+<td>Data 2</td>
+<td>Data 3</td>
+</tr>
+</tbody>
+</table>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">function</span> <span class="nx">responseFunction</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s2">"This is code in response component"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+</td></tr></table></ai-message-component-response></ai-message><h2 id="code-examples-code-examples">Code Examples {#code-examples}</h2>
 <h3 id="code-block-with-syntax-highlighting">Code Block with Syntax Highlighting</h3>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
@@ -798,8 +1037,7 @@ It can span multiple lines.</p>
 :   Definition 2b</p>
 <h2 id="images-and-files">Images and Files</h2>
 <h3 id="regular-images">Regular Images</h3>
-<p><img alt="Sample Image" src="tests/a_picture.png"/>
-<img alt="Alt Text" src="https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image"/></p>
+<p><img alt="Alt Text" src="https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image"/></p>
 <h3 id="images-with-titles">Images with Titles</h3>
 <p><img alt="Sample Image" src="https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png" title="This is a title"/></p>
 <h3 id="local-files">Local Files</h3>
@@ -1075,41 +1313,84 @@ function addCopyButtons() {
         btn.style.position = 'absolute';
         btn.style.top = '8px';
         btn.style.left = '8px';
-        btn.style.zIndex = '10';
-        btn.style.display = 'none';
+        btn.style.zIndex = '10000';
+        btn.style.display = 'block'; // Make it visible by default for debugging
         btn.style.padding = '4px 10px';
         btn.style.fontSize = '0.95em';
-        btn.style.background = '#3b82f6';
+        btn.style.background = 'rgba(59, 130, 246, 0.9)'; // More opaque for visibility
         btn.style.color = '#fff';
-        btn.style.border = 'none';
+        btn.style.border = '2px solid #fff'; // Add border for visibility
         btn.style.borderRadius = '6px';
         btn.style.cursor = 'pointer';
-        btn.style.boxShadow = '0 2px 8px 0 rgba(99,102,241,0.13)';
+        btn.style.boxShadow = '0 2px 8px 0 rgba(99,102,241,0.3)';
         btn.style.transition = 'background 0.2s';
-        btn.addEventListener('mouseenter', () => btn.style.background = '#2563eb'); // blue-600
-        btn.addEventListener('mouseleave', () => btn.style.background = '#3b82f6'); // blue-500
+        btn.addEventListener('mouseenter', () => btn.style.background = 'rgba(37, 99, 235, 0.8)'); // blue-600 with transparency
+        btn.addEventListener('mouseleave', () => btn.style.background = 'rgba(59, 130, 246, 0.6)'); // blue-500 with transparency
         return btn;
     }
 
-    // For code blocks (table.highlighttable), tables (table.markdown-table), details/summary
+    // For code blocks (table.highlighttable), tables (table.markdown-table), details/summary, and AI message components
     const selectors = [
         'table.highlighttable',
         'table.markdown-table',
-        'details'
+        'table',
+        'details',
+        'ai-message-component-think',
+        'ai-message-component-response'
     ];
+    
+    let totalElements = 0;
+    let aiElements = 0;
+    
     selectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(block => {
+        const elements = document.querySelectorAll(sel);
+        console.log(`Selector "${sel}" found ${elements.length} elements`);
+        
+        elements.forEach(block => {
+            totalElements++;
+            if (sel === 'ai-message-component-think' || sel === 'ai-message-component-response') {
+                aiElements++;
+                console.log(`Processing AI element:`, block);
+                console.log('AI element position:', block.style.position);
+                console.log('AI element z-index:', block.style.zIndex);
+            }
+            
             // Make sure the block is relatively positioned
             block.style.position = 'relative';
+            // Add transition for smooth box-shadow animation
+            block.style.transition = 'box-shadow 0.3s ease';
             // Only add one button per block
-            if (block.querySelector('.copy-btn')) return;
+            // if (block.querySelector('.copy-btn')) {
+            //     console.log('Copy button already exists, skipping');
+            //     return;
+            // }
             const btn = createCopyBtn();
             block.appendChild(btn);
-            block.addEventListener('mouseenter', () => {
+            console.log(`Added copy button to ${sel} element`);
+            console.log('Button position:', btn.style.position);
+            console.log('Button z-index:', btn.style.zIndex);
+            console.log('Button display:', btn.style.display);
+            
+            // For AI elements, keep button visible for debugging
+            if (sel === 'ai-message-component-think' || sel === 'ai-message-component-response') {
                 btn.style.display = 'block';
+            } else {
+                btn.style.display = 'none';
+            }
+            
+            block.addEventListener('mouseenter', () => {
+                if (sel !== 'ai-message-component-think' && sel !== 'ai-message-component-response') {
+                    btn.style.display = 'block';
+                }
+                // Add blur effect to box-shadow
+                block.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.3)';
             });
             block.addEventListener('mouseleave', () => {
-                btn.style.display = 'none';
+                if (sel !== 'ai-message-component-think' && sel !== 'ai-message-component-response') {
+                    btn.style.display = 'none';
+                }
+                // Remove blur effect
+                block.style.boxShadow = '';
             });
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1123,6 +1404,11 @@ function addCopyButtons() {
                     let temp = block.cloneNode(true);
                     temp.querySelectorAll('.copy-btn').forEach(btn => btn.remove());
                     text = temp.innerText;
+                } else if (block.matches('table')) {
+                    // Clone the table and remove all .copy-btn before copying
+                    let temp = block.cloneNode(true);
+                    temp.querySelectorAll('.copy-btn').forEach(btn => btn.remove());
+                    text = temp.innerText;
                 } else if (block.matches('details')) {
                     // Exclude summary and copy button itself
                     let temp = block.cloneNode(true);
@@ -1131,6 +1417,10 @@ function addCopyButtons() {
                     // Remove all summary tags
                     temp.querySelectorAll('summary').forEach(s => s.remove());
                     text = temp.innerText;
+                } else if (block.matches('ai-message-component-think') || block.matches('ai-message-component-response')) {
+                    // Get original markdown content from data attribute
+                    text = block.getAttribute('data-original-content') || block.innerText;
+                    console.log('Copying AI component text:', text.substring(0, 100) + '...');
                 }
                 navigator.clipboard.writeText(text);
                 btn.innerHTML = 'COPIED!';
@@ -1138,88 +1428,34 @@ function addCopyButtons() {
             });
         });
     });
+    
+    console.log(`Total elements processed: ${totalElements}, AI elements: ${aiElements}`);
 }
 
-// // (2) Query button on text selection
-// function addQueryButton() {
-//     let queryBtn = null;
-//     let lastRange = null;
-//     let lastSelectedText = '';
-//     function createQueryBtn() {
-//         const btn = document.createElement('button');
-//         btn.className = 'query-btn';
-//         btn.innerHTML = 'ASK';
-//         btn.style.position = 'fixed';
-//         btn.style.zIndex = '9999';
-//         btn.style.display = 'none';
-//         btn.style.padding = '4px 12px';
-//         btn.style.fontSize = '1em';
-//         btn.style.background = '#2563eb';
-//         btn.style.color = '#fff';
-//         btn.style.border = 'none';
-//         btn.style.borderRadius = '6px';
-//         btn.style.cursor = 'pointer';
-//         btn.style.boxShadow = '0 2px 8px 0 rgba(37,99,235,0.13)';
-//         btn.style.transition = 'background 0.2s';
-//         btn.addEventListener('mouseenter', () => btn.style.background = '#1d4ed8');
-//         btn.addEventListener('mouseleave', () => btn.style.background = '#2563eb');
-//         btn.addEventListener('mousedown', e => e.preventDefault());
-//         return btn;
-//     }
-//     function showQueryBtn(x, y) {
-//         if (!queryBtn) {
-//             queryBtn = createQueryBtn();
-//             document.body.appendChild(queryBtn);
-//             queryBtn.addEventListener('click', () => {
-//                 if (!lastRange) return;
-//                 queryBtn.style.display = 'none'; // Hide immediately on click
-//                 const sel = window.getSelection();
-//                 sel.removeAllRanges();
-//                 sel.addRange(lastRange);
-//                 const text = sel.toString();
-//                 fetch('http://localhost:8000/query', {
-//                     method: 'POST',
-//                     headers: { 'Content-Type': 'application/json' },
-//                     body: JSON.stringify({ query: text })
-//                 }).then(() => {
-//                     queryBtn.innerHTML = '!';
-//                     setTimeout(() => { queryBtn.innerHTML = 'ASK'; }, 1200);
-//                 });
-//             });
-//         }
-//         queryBtn.style.left = `${x}px`;
-//         queryBtn.style.top = `${y}px`;
-//         queryBtn.style.display = 'block';
-//     }
-//     document.addEventListener('mouseup', (e) => {
-//         setTimeout(() => {
-//             const sel = window.getSelection();
-//             if (sel && sel.toString().trim().length > 0) {
-//                 const selectedText = sel.toString();
-//                 if (selectedText === lastSelectedText) {
-//                     // Do not show button if selection is the same as last time
-//                     return;
-//                 }
-//                 lastRange = sel.getRangeAt(0).cloneRange();
-//                 lastSelectedText = selectedText;
-//                 // Show button near mouse
-//                 showQueryBtn(e.clientX + 10, e.clientY + 10);
-//             } else if (queryBtn) {
-//                 queryBtn.style.display = 'none';
-//                 lastSelectedText = '';
-//             }
-//         }, 10);
-//     });
-//     document.addEventListener('mousedown', (e) => {
-//         if (queryBtn && !queryBtn.contains(e.target)) {
-//             queryBtn.style.display = 'none';
-//         }
-//     });
+// Function to retry adding copy buttons for dynamic content
+// function retryAddCopyButtons() {
+    // setTimeout(() => {
+    //     console.log('Retrying to add copy buttons for dynamic content...');
+    //     addCopyButtons();
+    // }, 1000);
 // }
 
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - adding copy buttons');
     addCopyButtons();
     // addQueryButton();
+    
+    // Also retry after a delay to catch any dynamically loaded content
+    // retryAddCopyButtons();
+});
+
+// Also listen for any dynamic content changes
+document.addEventListener('DOMNodeInserted', (event) => {
+    if (event.target.matches && (event.target.matches('ai-message-component-think') || event.target.matches('ai-message-component-response'))) {
+        console.log('New AI component detected, retrying copy buttons');
+        // retryAddCopyButtons();
+    }
 });
 
 </script>

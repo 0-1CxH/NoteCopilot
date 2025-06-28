@@ -1,5 +1,6 @@
 import markdown
 import os
+import re
 from bs4 import BeautifulSoup
 
 class Markdown2HTMLConverter:
@@ -71,12 +72,28 @@ class Markdown2HTMLConverter:
         return css_content
     
     def __call__(self, text, only_return_body):
-        html_content = self.executor.convert(text)
-        self.executor.reset()
-        html_content = self.post_process_html(html_content)
+        # First, separate ai-message segments from regular markdown content
+        segments = self.separate_ai_message_segments(text)
+        
+        # Process each segment
+        processed_segments = []
+        for segment_type, segment_content in segments:
+            if segment_type == 'ai-message':
+                # Process ai-message segment separately
+                processed_html = self.process_ai_message_segment(segment_content)
+                processed_segments.append(processed_html)
+            else:
+                # Process regular markdown content
+                html_content = self.executor.convert(segment_content)
+                self.executor.reset()
+                html_content = self.post_process_html(html_content)
+                processed_segments.append(html_content)
+        
+        # Concatenate all processed segments
+        final_html_content = ''.join(processed_segments)
 
         if only_return_body:
-            return html_content
+            return final_html_content
         else:
             return f"""<!DOCTYPE html>
 <html lang="en">
@@ -89,11 +106,81 @@ class Markdown2HTMLConverter:
 </head>
 <body>
     <div class="content">
-        {html_content}
+        {final_html_content}
     </div>
 </body>
     {self.js_content_after_body}
 </html>"""
+    
+    def separate_ai_message_segments(self, text):
+        """Separate ai-message segments from regular markdown content"""
+        segments = []
+        current_pos = 0
+        
+        # Pattern to match ai-message blocks
+        # This matches <ai-message>...</ai-message> with any content inside
+        ai_message_pattern = r'<ai-message>(.*?)</ai-message>'
+        
+        for match in re.finditer(ai_message_pattern, text, re.DOTALL):
+            # Add any content before the ai-message
+            if match.start() > current_pos:
+                regular_content = text[current_pos:match.start()]
+                if regular_content.strip():
+                    segments.append(('regular', regular_content))
+            
+            # Add the ai-message content
+            ai_message_content = match.group(1)
+            segments.append(('ai-message', ai_message_content))
+            
+            current_pos = match.end()
+        
+        # Add any remaining content after the last ai-message
+        if current_pos < len(text):
+            remaining_content = text[current_pos:]
+            if remaining_content.strip():
+                segments.append(('regular', remaining_content))
+        
+        return segments
+    
+    def process_ai_message_segment(self, ai_message_content):
+        """Process an ai-message segment, handling its internal components"""
+        # Create the outer ai-message tag
+        soup = BeautifulSoup('<ai-message></ai-message>', 'html.parser')
+        ai_message_tag = soup.find('ai-message')
+        
+        # Find think and response components
+        think_match = re.search(r'<ai-message-component-think>(.*?)</ai-message-component-think>', 
+                               ai_message_content, re.DOTALL)
+        response_match = re.search(r'<ai-message-component-response>(.*?)</ai-message-component-response>', 
+                                  ai_message_content, re.DOTALL)
+        
+        if think_match:
+            think_content = think_match.group(1).strip()
+            # Convert markdown content to HTML
+            think_html = self.executor.convert(think_content)
+            self.executor.reset()
+            
+            # Create think component
+            think_tag = soup.new_tag('ai-message-component-think')
+            think_tag.append(BeautifulSoup(think_html, 'html.parser'))
+            # Add original content as data attribute for copy functionality
+            think_tag['data-original-content'] = think_content
+            ai_message_tag.append(think_tag)
+        
+        if response_match:
+            response_content = response_match.group(1).strip()
+            # Convert markdown content to HTML
+            response_html = self.executor.convert(response_content)
+            self.executor.reset()
+            
+            # Create response component
+            response_tag = soup.new_tag('ai-message-component-response')
+            response_tag.append(BeautifulSoup(response_html, 'html.parser'))
+            # Add original content as data attribute for copy functionality
+            response_tag['data-original-content'] = response_content
+            ai_message_tag.append(response_tag)
+        
+        return str(soup)
     
     def post_process_html(self, html_content):
         """Post-process the HTML content"""
@@ -149,7 +236,6 @@ class Markdown2HTMLConverter:
             for child in mark.contents:
                 new_tag.append(child)
             mark.replace_with(new_tag)
-        
         
         return str(soup)
         

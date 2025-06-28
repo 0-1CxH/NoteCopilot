@@ -15,6 +15,64 @@ This is a **bold** text and this is *italic*. Here's some `inline code`.
 
 ---
 
+## AI Message Test
+
+<ai-message>
+<ai-message-component-think>
+# Think Component H1
+## Think Component H2
+### Think Component H3
+
+This is a **bold** paragraph with `inline code` in the think component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+> This is a blockquote in the think component.
+
+| Think | Table | Test |
+|-------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```python
+def think_function():
+    return "This is code in think component"
+```
+</ai-message-component-think>
+<ai-message-component-response>
+# Response Component H1
+## Response Component H2
+### Response Component H3
+
+This is a **bold** paragraph with `inline code` in the response component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+> This is a blockquote in the response component.
+
+| Response | Table | Test |
+|----------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```javascript
+function responseFunction() {
+    return "This is code in response component";
+}
+```
+</ai-message-component-response>
+</ai-message>
+
 ## Code Examples {#code-examples}
 
 ### Code Block with Syntax Highlighting
