@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from .md2html_convert import Markdown2HTMLConverter
+from .ai_copilot import AICopilot
 import os
 import time
 
