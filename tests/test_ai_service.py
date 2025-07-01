@@ -16,9 +16,10 @@ from src.ai_service import OpenaiAPICompletionService, AzureOpenaiAPICompletionS
 
 all_test_services = load_services("tests/test_services.yaml")
 
-test_service = all_test_services['azure']
-print(test_service.supported_models)
+for _ in all_test_services:
+    print(all_test_services[_].supported_models)
 
+test_service = all_test_services['azure']
 print(test_service.generate("hello", generation_config={"n": 2}, streaming=False))
 
 r = test_service.generate("hello", generation_config={"n": 1}, streaming=True)

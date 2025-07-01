@@ -4,17 +4,30 @@ from .md2html_convert import Markdown2HTMLConverter
 from .ai_copilot import AICopilot
 import os
 import time
+import logging
+
+# Set up a basic logger for the server
+logger = logging.getLogger("NoteCopilotServer")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+handler.setFormatter(formatter)
+if not logger.hasHandlers():
+    logger.addHandler(handler)
 
 class NoteCopilotServer:
     def __init__(self, static_folder, notes_folder, ai_services_config_path, ai_functions_config_path):
         # Convert relative path to absolute path
         self.static_folder = os.path.abspath(static_folder)
         self.notes_folder = os.path.abspath(notes_folder)
+        self.ai_services_config_path = os.path.abspath(ai_services_config_path)
+        self.ai_functions_config_path = os.path.abspath(ai_functions_config_path)
         self.app = Flask(__name__, 
                         static_url_path='/static',  # Changed this
                         static_folder=self.static_folder)
         CORS(self.app)
         self.converter = Markdown2HTMLConverter()
+        self.copilot = AICopilot(self.ai_services_config_path, self.ai_functions_config_path)
         self.setup_routes()
 
     def setup_routes(self):
@@ -27,7 +40,7 @@ class NoteCopilotServer:
         # List markdown files endpoint
         self.app.route('/list')(self.list_md_files)
         # AI mock endpoint
-        self.app.route('/ai', methods=['POST'])(self.ai_mock)
+        self.app.route('/ai', methods=['POST'])(self.ai_request)
         # Save markdown file endpoint
         self.app.route('/save', methods=['POST'])(self.save_md_file)
         # Load markdown file endpoint
@@ -56,19 +69,19 @@ class NoteCopilotServer:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    def ai_mock(self):
+    def ai_request(self):
         import time
         time.sleep(2)
         data = request.get_json()
-        print(data)
+        self.copilot(data)
         def generate():
             # Simulate streaming chunks
             for word in [
                 "<ai-message><ai-message-component-think>", f"The *type* of **ai request** is ==", f"{data['type']}", "==</ai-message-component-think>"
-                "<ai-message-component-response>", f"### the query entered is <u>{data.get('query')}</u> \n >", "- this is ", "a ", "streamed ", "response \n- ",
+                "<ai-message-component-response>", f"{data.get('selected_func_name')}\n ### the query entered is <u>{data.get('query')}</u> \n >", "- this is ", "a ", "streamed ", "response \n- ",
                 "the content entered is: \n```\n", f"{data['content']}\n", "```", "\n</ai-message-component-response></ai-message>"]:
                 yield word
-                time.sleep(0.4)
+                time.sleep(0.1)
         return Response(generate(), mimetype='text/plain')
 
     def save_md_file(self):
@@ -103,34 +116,7 @@ class NoteCopilotServer:
             return jsonify({'error': str(e)}), 500
 
     def get_funcs(self):
-        # Example function cards
-        funcs = [
-            {
-                'name': 'Summarize',
-                'description': 'Summarize the selected text or note.',
-                'icon': 'fas fa-align-left',
-                'template': 'template 1',
-            },
-            {
-                'name': 'Explain',
-                'description': 'Explain the selected concept in detail.',
-                'icon': 'fas fa-lightbulb',
-                'template': 'template 2',
-            },
-            {
-                'name': 'Translate',
-                'description': 'Translate the selected text to another language.',
-                'icon': 'fas fa-language',
-                'template': 'template 3',
-            },
-            {
-                'name': 'Generate Questions',
-                'description': 'Generate quiz questions from the selected content.',
-                'icon': 'fas fa-question-circle',
-                'template': 'template 4',
-            }
-        ]
-        return jsonify({'funcs': funcs * 8})
+        return jsonify({'funcs': self.copilot.get_funcs(return_json=True)})
 
     def run(self, debug, port):
         self.app.run(debug=debug, port=port)

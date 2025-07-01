@@ -6,17 +6,24 @@ import yaml
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import logging
+
+logger = logging.getLogger("AIService")
+logger.setLevel(logging.INFO)
+if not logger.hasHandlers():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
 class BaseAPICompletionService(ABC):
 
-    def __init__(self, api_endpoint, api_key, default_model_name=None, supported_models=None):
-        print(f"init {api_endpoint}")
+    def __init__(self, api_endpoint, api_key, default_model_name):
         self.api_endpoint = api_endpoint
         self.api_key = api_key
         self.default_model_name = default_model_name
-        if supported_models is not None:
-            self.supported_models = supported_models
-        else:
-            self.supported_models = self.fetch_supported_models()
+        self.supported_models = self.fetch_supported_models()
         if default_model_name not in self.supported_models:
             self.supported_models.append(default_model_name)
     
@@ -34,15 +41,18 @@ class BaseAPICompletionService(ABC):
     def fetch_supported_models(self):
         pass
 
+    def is_model_supported(self, model_name):
+        return model_name in self.supported_models
+
     def generate(
         self,
-        messages: List[Dict] | str, 
+        messages, #: List[Dict] | str, 
         streaming: Optional[bool],
         generation_config: Optional[dict] = None,
         model_name: Optional[str] = None,
         retry_times: int = 5,
     ):
-        if self.default_model_name is not None:
+        if model_name is None:
             model_name = self.default_model_name
         assert model_name is not None
         if isinstance(messages, str):
@@ -60,7 +70,7 @@ class BaseAPICompletionService(ABC):
                 remaning_retry_times -= 1
                 backoff_time = 2 ** (2 + retry_times - remaning_retry_times)
                 time.sleep(backoff_time)
-                print(f"An error occurred in thread worker: {e}. Retrying after {backoff_time}s... ({retry_times - remaning_retry_times + 1}/{retry_times})")
+                logger.error(f"An error occurred in thread worker: {e}. Retrying after {backoff_time}s... ({retry_times - remaning_retry_times + 1}/{retry_times})")
             
         # If all retries fail, return None or handle as needed
         return None
@@ -74,7 +84,7 @@ class BaseAPICompletionService(ABC):
             parallel_size: int = 3,
             retry_times: int = 5
     ):
-        if self.default_model_name is not None:
+        if model_name is None:
             model_name = self.default_model_name
         assert model_name is not None
         def thread_worker(messages, generation_config):
@@ -88,7 +98,7 @@ class BaseAPICompletionService(ABC):
                     remaning_retry_times -= 1
                     backoff_time = 2 ** (2 + retry_times - remaning_retry_times)
                     time.sleep(backoff_time)
-                    print(f"An error occurred in thread worker: {e}. Retrying after {backoff_time}s... ({retry_times - remaning_retry_times + 1}/{retry_times})")
+                    logger.error(f"An error occurred in thread worker: {e}. Retrying after {backoff_time}s... ({retry_times - remaning_retry_times + 1}/{retry_times})")
                 
             # If all retries fail, return None or handle as needed
             return None
@@ -109,7 +119,7 @@ class BaseAPICompletionService(ABC):
                 try:
                     results[index] = future.result()
                 except Exception as e:
-                    print(f"An error occurred in collecting result {index=}: {e}")
+                    logger.error(f"An error occurred in collecting result {index=}: {e}")
         return results
 
 class DefaultGenerationConfig:
@@ -130,12 +140,12 @@ class DefaultGenerationConfig:
             }
 
 class OpenaiAPICompletionService(BaseAPICompletionService):
-    def __init__(self, api_endpoint, api_key, default_model_name=None, supported_models=None):
+    def __init__(self, api_endpoint, api_key, default_model_name):
         self.client = openai.OpenAI(
             api_key=api_key, 
             base_url=api_endpoint
         )
-        super().__init__(api_endpoint, api_key, default_model_name, supported_models)
+        super().__init__(api_endpoint, api_key, default_model_name)
     
     def fetch_supported_models(self):
         try:
@@ -162,18 +172,18 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
                     if event.choices[0].finish_reason == "stop":
                         yield None # means end
         else:
-            print(f"Total tokens: {completion.usage.total_tokens}, Completion tokens: {completion.usage.completion_tokens}")
+            logger.info(f"Total tokens: {completion.usage.total_tokens}, Completion tokens: {completion.usage.completion_tokens}")
             return [choice.message.content for choice in completion.choices]
 
 
 class AzureOpenaiAPICompletionService(OpenaiAPICompletionService):
-    def __init__(self, api_endpoint, api_key, api_version, default_model_name, supported_models=None):
+    def __init__(self, api_endpoint, api_key, api_version, default_model_name):
         self.client = openai.AzureOpenAI(
             api_key=api_key, 
             azure_endpoint=api_endpoint,
             api_version=api_version
         )
-        BaseAPICompletionService.__init__(self, api_endpoint, api_key, default_model_name, supported_models)
+        BaseAPICompletionService.__init__(self, api_endpoint, api_key, default_model_name)
         self.api_version = api_version
 
 service_type_map = {
@@ -191,5 +201,9 @@ def load_services(config_path: str):
         service_type = service_config.pop('type')
         assert service_type in service_type_map
         services[service_name] = service_type_map[service_type](**service_config)
+    
+    for idx, (service_name, service_obj) in enumerate(services.items()):
+        logger.info(f"[{idx+1}/{len(services)}] AI Service '{service_name}' ({service_obj.api_endpoint}, default={service_obj.default_model_name}) loaded with models: {service_obj.supported_models}")
+    
 
     return services

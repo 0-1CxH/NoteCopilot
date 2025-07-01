@@ -4,7 +4,7 @@ services:
     type: openai
     api_endpoint: "https://api.openai.com/v1"
     api_key: "your-openai-api-key"
-    supported_models: ["model1", "model2", "model3"] # specify models to use instead of auto fetch
+    default_model_name: "default_model_name" # add a default model here
 
   # Azure OpenAI API services
   azure:

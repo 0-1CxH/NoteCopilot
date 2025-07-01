@@ -1,0 +1,34 @@
+functions:
+  - name: Summarize
+    description: Summarize the selected text or note.
+    icon: fas fa-align-left
+    model: deepseek-r1
+    template: |
+      Please provide a concise summary of the following content:
+
+      {{content}}
+
+  - name: Explain
+    description: Explain the selected concept in detail.
+    icon: fas fa-lightbulb
+    template: |
+      Please explain the following concept in detail, including examples if possible:
+
+      {{content}}
+
+  - name: Translate
+    description: Translate the selected text to another language.
+    icon: fas fa-language
+    model: gpt-4o
+    template: |
+      Please translate the following text to the specified language. Indicate the target language at the start of your response.
+
+      {{content}}
+
+  - name: Generate Questions
+    description: Generate quiz questions from the selected content.
+    icon: fas fa-question-circle
+    template: |
+      Please generate a set of quiz questions (with answers) based on the following content:
+
+      {{content}}

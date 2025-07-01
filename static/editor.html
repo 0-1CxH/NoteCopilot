@@ -1348,6 +1348,7 @@
         // If no selection, use content before cursor
         const content = selected || mdInput.value.slice(0, start);
         const query = askQueryInput.value.trim();
+        const selected_func_name = selectedFunc;
         hideAskBubble();
         // Insert loading text as in autoCompletionRequest
         const oldValue = mdInput.value;
@@ -1368,7 +1369,7 @@
           const resp = await fetch('/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'ask', content, query })
+            body: JSON.stringify({ type: 'ask', content, query, selected_func_name })
           });
           if (!resp.ok) throw new Error('AI request failed');
           const reader = resp.body.getReader();
