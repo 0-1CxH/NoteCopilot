@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 class BaseAPICompletionService(ABC):
 
     def __init__(self, api_endpoint, api_key, default_model_name=None, supported_models=None):
+        print(f"init {api_endpoint}")
         self.api_endpoint = api_endpoint
         self.api_key = api_key
         self.default_model_name = default_model_name
@@ -16,6 +17,8 @@ class BaseAPICompletionService(ABC):
             self.supported_models = supported_models
         else:
             self.supported_models = self.fetch_supported_models()
+        if default_model_name not in self.supported_models:
+            self.supported_models.append(default_model_name)
     
     @abstractmethod
     def __call__(
@@ -138,8 +141,7 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
         try:
             return [_.id for _ in self.client.models.list().data]
         except Exception as e:
-            print(e)
-            return None
+            return []
 
     def __call__(self, messages: List[Dict], generation_config: dict, model_name: str, streaming: bool) -> Any:
         effective_generation_config = DefaultGenerationConfig.get_default_config(model_name)
@@ -186,7 +188,8 @@ def load_services(config_path: str):
     
     services = {}
     for service_name, service_config in config['services'].items():
-        assert service_config['type'] in service_type_map
-        services[service_name] = service_type_map[service_config['type']](**service_config)
+        service_type = service_config.pop('type')
+        assert service_type in service_type_map
+        services[service_name] = service_type_map[service_type](**service_config)
 
     return services

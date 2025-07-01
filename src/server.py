@@ -6,7 +6,7 @@ import os
 import time
 
 class NoteCopilotServer:
-    def __init__(self, static_folder, notes_folder):
+    def __init__(self, static_folder, notes_folder, ai_services_config_path, ai_functions_config_path):
         # Convert relative path to absolute path
         self.static_folder = os.path.abspath(static_folder)
         self.notes_folder = os.path.abspath(notes_folder)
