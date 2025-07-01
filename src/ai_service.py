@@ -2,15 +2,20 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 import openai
 import time
+import yaml
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class BaseAPICompletionService(ABC):
 
-    def __init__(self, api_endpoint, api_key, model_name=None):
+    def __init__(self, api_endpoint, api_key, default_model_name=None, supported_models=None):
         self.api_endpoint = api_endpoint
         self.api_key = api_key
-        self.model_name = model_name
+        self.default_model_name = default_model_name
+        if supported_models is not None:
+            self.supported_models = supported_models
+        else:
+            self.supported_models = self.fetch_supported_models()
     
     @abstractmethod
     def __call__(
@@ -22,6 +27,10 @@ class BaseAPICompletionService(ABC):
     ) -> Any:
         pass
 
+    @abstractmethod
+    def fetch_supported_models(self):
+        pass
+
     def generate(
         self,
         messages: List[Dict] | str, 
@@ -30,8 +39,8 @@ class BaseAPICompletionService(ABC):
         model_name: Optional[str] = None,
         retry_times: int = 5,
     ):
-        if self.model_name is not None:
-            model_name = self.model_name
+        if self.default_model_name is not None:
+            model_name = self.default_model_name
         assert model_name is not None
         if isinstance(messages, str):
             messages = [
@@ -62,8 +71,8 @@ class BaseAPICompletionService(ABC):
             parallel_size: int = 3,
             retry_times: int = 5
     ):
-        if self.model_name is not None:
-            model_name = self.model_name
+        if self.default_model_name is not None:
+            model_name = self.default_model_name
         assert model_name is not None
         def thread_worker(messages, generation_config):
             remaning_retry_times = retry_times
@@ -90,7 +99,7 @@ class BaseAPICompletionService(ABC):
             }
             for future in tqdm(
                     as_completed(future_to_index),
-                    desc=f"{self.model_name} api processing",
+                    desc=f"{model_name} api processing",
                     total=len(batch_messages)
             ):
                 index = future_to_index[future]
@@ -118,19 +127,26 @@ class DefaultGenerationConfig:
             }
 
 class OpenaiAPICompletionService(BaseAPICompletionService):
-    def __init__(self, api_endpoint, api_key, model_name):
-        super().__init__(api_endpoint, api_key, model_name)
+    def __init__(self, api_endpoint, api_key, default_model_name=None, supported_models=None):
         self.client = openai.OpenAI(
-            api_key=self.api_key, 
-            base_url=self.api_endpoint
+            api_key=api_key, 
+            base_url=api_endpoint
         )
+        super().__init__(api_endpoint, api_key, default_model_name, supported_models)
+    
+    def fetch_supported_models(self):
+        try:
+            return [_.id for _ in self.client.models.list().data]
+        except Exception as e:
+            print(e)
+            return None
 
     def __call__(self, messages: List[Dict], generation_config: dict, model_name: str, streaming: bool) -> Any:
         effective_generation_config = DefaultGenerationConfig.get_default_config(model_name)
         if generation_config is not None:
             effective_generation_config.update(generation_config)
         completion = self.client.chat.completions.create(
-                model=self.model_name,
+                model=model_name,
                 messages=messages,
                 stream=streaming,
                 **effective_generation_config
@@ -149,11 +165,28 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
 
 
 class AzureOpenaiAPICompletionService(OpenaiAPICompletionService):
-    def __init__(self, api_endpoint, api_key, api_version, model_name):
-        BaseAPICompletionService.__init__(self, api_endpoint, api_key, model_name)
-        self.api_version = api_version
+    def __init__(self, api_endpoint, api_key, api_version, default_model_name, supported_models=None):
         self.client = openai.AzureOpenAI(
-            api_key=self.api_key, 
-            azure_endpoint=self.api_endpoint,
-            api_version=self.api_version
+            api_key=api_key, 
+            azure_endpoint=api_endpoint,
+            api_version=api_version
         )
+        BaseAPICompletionService.__init__(self, api_endpoint, api_key, default_model_name, supported_models)
+        self.api_version = api_version
+
+service_type_map = {
+    "openai": OpenaiAPICompletionService,
+    "azure": AzureOpenaiAPICompletionService,
+}
+
+
+def load_services(config_path: str):
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    services = {}
+    for service_name, service_config in config['services'].items():
+        assert service_config['type'] in service_type_map
+        services[service_name] = service_type_map[service_config['type']](**service_config)
+
+    return services

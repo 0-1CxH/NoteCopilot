@@ -1,14 +1,23 @@
 import os
-from src.ai_service import AzureOpenaiAPICompletionService
+from src.ai_service import OpenaiAPICompletionService, AzureOpenaiAPICompletionService
 
-test_service = AzureOpenaiAPICompletionService(
-    api_endpoint=os.environ["AZURE_ENDPOINT"],
-    api_key=os.environ["AZURE_KEY"],
-    api_version=os.environ["AZURE_API_VERSION"],
-    model_name="gpt-4o"
+# test_service = AzureOpenaiAPICompletionService(
+#     api_endpoint=os.environ["AZURE_ENDPOINT"],
+#     api_key=os.environ["AZURE_KEY"],
+#     api_version=os.environ["AZURE_API_VERSION"],
+#     default_model_name="gpt-4o"
+# )
+
+test_service = OpenaiAPICompletionService(
+    api_endpoint=os.environ["CUSTOM_ENDPOINT"],
+    api_key=os.environ["CUSTOM_KEY"],
 )
+test_service.default_model_name = "gpt-3.5-turbo-1106"
 
-print(test_service.generate("hello", generation_config={"n": 2}))
+
+print(test_service.supported_models)
+
+print(test_service.generate("hello", generation_config={"n": 2}, streaming=False))
 
 r = test_service.generate("hello", generation_config={"n": 1}, streaming=True)
 
