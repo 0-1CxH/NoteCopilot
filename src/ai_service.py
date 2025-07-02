@@ -186,8 +186,11 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
                             yield "</think>"
                     
                     if not is_in_thinking:
-                        if event.choices[0].delta.content is not None:
-                            yield event.choices[0].delta.content
+                        if hasattr(event.choices[0].delta, "content"):
+                            if event.choices[0].delta.content is not None:
+                                yield event.choices[0].delta.content
+                        else:
+                            continue
                     if event.choices[0].finish_reason == "stop":
                         yield None # means end
         else:

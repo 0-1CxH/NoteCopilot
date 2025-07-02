@@ -1,42 +1,158 @@
 system_message: |
-    You are a helpful AI assistant. Please follow these guidelines:
-    1. Always respond in the same language as the input content, unless specifically asked to translate
-    2. Format your responses using Markdown syntax
-    3. Use appropriate Markdown elements like headers, lists, code blocks, and emphasis where relevant
-    4. Keep your responses clear, concise and well-structured    
+    你将会被提供一些以Markdown格式编写的内容，你需要在阅读这些内容后完成给定的指令，然后使用Markdown语法输出你的回复。
+    注意：
+    - 除非被特别要求翻译，在默认情况下，始终使用与输入内容相同的语言进行回复
+    - 如果需要输出思考过程，需要将思考的内容放在一对<think></think>标签对中，这些内容也需要用与输入内容相同的语言
+    - Markdown可以使用的元素包括各级标题、列表、表格、引用块、代码块、latex数学公式、details折叠框、admonition横幅等
+    - 保持回复内容清晰、简明且结构良好
+
+completion_prompt_template: |
+  阅读并分析以下内容，然后尝试继续写作：
+  
+  {{content}}
+  
+  注意：请直接开始续写，【不要生成其他内容】
 
 functions:
-  - name: Summarize
-    description: Summarize the selected text or note.
+  - name: 总结
+    description: 对文本进行总结摘要。
     icon: fas fa-align-left
+    model: gpt-4o
+    template: |
+      请对以下内容进行简明扼要的总结：
+
+      {{content}}
+  
+  - name: 回答问题
+    description: 根据所选内容，回答指定的问题。
+    icon: fas fa-question-circle
     model: deepseek-r1
     template: |
-      Please provide a concise summary of the following content:
-
       {{content}}
-
-  - name: Explain
-    description: Explain the selected concept in detail.
+      请根据上面的内容，回答下面的问题，并给出你的理由。
+      问题是：
+  
+  - name: 代码解释
+    description: 解释内容中的代码的主要行为。
     icon: fas fa-lightbulb
+    model: claude-sonnet-4-20250514-thinking
     template: |
-      Please explain the following concept in detail, including examples if possible:
+      请详细解释以下内容中的代码的主要行为、功能和实现思路，并结合代码片段进行说明：
 
       {{content}}
 
-  - name: Translate
-    description: Translate the selected text to another language.
+  - name: 翻译为英文
+    description: 将所选文本翻译为英文。
     icon: fas fa-language
     model: gpt-4o
     template: |
-      Please translate the following text to the specified language. Indicate the target language at the start of your response.
+      请将以下文本翻译为【English/英文】：
 
       {{content}}
-
-  - name: Generate Questions
-    description: Generate quiz questions from the selected content.
-    icon: fas fa-question-circle
-    model: gemini-1.5-flash-latest
+  
+  - name: 翻译为中文
+    description: 将所选文本翻译为中文。
+    icon: fas fa-language
+    model: gpt-4o
     template: |
-      Please generate a set of quiz questions (with answers) based on the following content:
+      请将以下文本翻译为【中文/Chinese】：
 
       {{content}}
+  
+  - name: 文本润色
+    description: 对文本进行润色、美化表达。
+    icon: fas fa-pen-fancy
+    model: deepseek-r1
+    template: |
+      请对以下文本进行润色，修改其中的问题，并使其表达更加流畅：
+
+      {{content}}
+
+  - name: 文本按要求修改
+    description: 按照指定要求对文本进行修改。
+    icon: fas fa-edit
+    model: gpt-4o
+    template: |
+      请根据以下要求对文本进行修改：
+      
+      文本：
+      {{content}}
+
+      要求：
+
+  - name: 代码编写
+    description: 根据需求编写代码。
+    icon: fas fa-code
+    model: claude-sonnet-4-20250514-thinking
+    template: |
+      请根据以下需求编写代码：
+      
+      {{content}}
+
+  - name: 代码Debug
+    description: 对代码进行调试，找出并修复问题。
+    icon: fas fa-bug
+    model: claude-sonnet-4-20250514-thinking
+    template: |
+      请对以下代码进行Debug，找出并修复其中的问题，并说明修改原因，并将思考过程输出并放置于一对<think></think>标签之间：
+
+      {{content}}
+
+      当前的错误现象为：
+  
+  - name: 文本扩写
+    description: 对提纲进行扩写，增加细节和内容。
+    icon: fas fa-expand
+    model: claude-sonnet-4-20250514-thinking
+    template: |
+      请对以下提纲进行扩写，增加细节和内容，使其更加丰富。你需要将思考过程输出并放置于一对<think></think>标签之间。
+
+      提纲：
+      {{content}}
+
+  - name: 批判性思考
+    description: 对文本内容进行批判性分析和思考。
+    icon: fas fa-brain
+    model: claude-opus-4-20250514-thinking
+    template: |
+      请对以下内容进行批判性思考，分析其优缺点、合理性及改进建议。你需要将思考过程输出并放置于一对<think></think>标签之间。
+      待分析内容：
+      {{content}}
+
+  - name: 示例模仿
+    description: 根据示例模仿写作风格或结构。
+    icon: fas fa-clone
+    model: claude-sonnet-4-20250514-thinking
+    template: |
+      请根据以下示例，模仿其写作风格或结构，生成新的内容：
+
+      示例：
+      {{content}}
+
+      请模仿上述示例进行创作。
+
+  - name: 列举更多
+    description: 针对文本内容，列举更多相关项。
+    icon: fas fa-list-ul
+    model: deepseek-r1
+    template: |
+      请针对以下内容，列举更多相关的例子、观点或要点：
+
+      参考内容：
+      {{content}}
+
+  - name: 文本批评
+    description: 对下列内容进行批评，指出不足和改进空间。
+    icon: fas fa-exclamation-triangle
+    model: claude-opus-4-20250514-thinking
+    template: |
+      请对以下文本进行批评，指出其中的不足和可以改进的地方。你需要将思考过程输出并放置于一对<think></think>标签之间。
+
+      待分析内容：
+      {{content}}
+  
+  
+  
+  
+
+

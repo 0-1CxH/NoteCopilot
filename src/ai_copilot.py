@@ -37,6 +37,8 @@ class AICopilot:
         }
         self.system_message = functions_yaml.get('system_message')
         logger.info(f"Current System Message is: {self.system_message}") 
+        self.completion_prompt_template = functions_yaml.get('completion_prompt_template')
+        logger.info(f"Current Completion Prompt Template is: {self.completion_prompt_template}") 
         # map functions to service and model
         self.func_to_serv_model_map = {}
         for func_name in self.ai_functions:
@@ -89,7 +91,7 @@ class AICopilot:
 
         type_ = request_data['type']
         if type_ == "completion":
-            query_ = "Read and analyze the following content, then try to continue writing it:\n{{content}}\n\nNote: start answer immediately, DO NOT GENERATE OTHER THINGS."
+            query_ = self.completion_prompt_template
         elif type_ == "ask":
             query_ = request_data.get("query")
         else:
