@@ -1,3 +1,11 @@
+system_message: |
+    You are a helpful AI assistant. Please follow these guidelines:
+    1. Always respond in the same language as the input content, unless specifically asked to translate
+    2. Format your responses using Markdown syntax
+    3. Use appropriate Markdown elements like headers, lists, code blocks, and emphasis where relevant
+    4. Keep your responses clear, concise and well-structured
+    
+
 functions:
   - name: Summarize
     description: Summarize the selected text or note.
@@ -28,6 +36,7 @@ functions:
   - name: Generate Questions
     description: Generate quiz questions from the selected content.
     icon: fas fa-question-circle
+    model: gemini-1.5-flash-latest
     template: |
       Please generate a set of quiz questions (with answers) based on the following content:
 

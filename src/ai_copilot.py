@@ -35,6 +35,8 @@ class AICopilot:
         self.ai_functions = {
             func['name']: AICopilotFunction(**func) for func in functions_yaml.get('functions', [])
         }
+        self.system_message = functions_yaml.get('system_message')
+        logger.info(f"Current System Message is: {self.system_message}") 
         # map functions to service and model
         self.func_to_serv_model_map = {}
         for func_name in self.ai_functions:
@@ -58,7 +60,7 @@ class AICopilot:
             logger.info(
                 f"[{idx+1}/{len(self.ai_functions)}]AI Function Loaded: {func_name} - {self.ai_functions[func_name].description}"
                 f"-- (service, model) = {self.func_to_serv_model_map[func_name]}"
-            )        
+            )
         
     
     def get_funcs(self, return_json=True):
@@ -85,7 +87,17 @@ class AICopilot:
         # type
         # content
         # selected_func_name = None
+        # {'type': 'completion', 'content': 'aaaaa'}
+        # {'type': 'ask', 'content': 'aaaaa', 'query': 'Please provide a concise summary of the following content:\n\n{{content}}', 'selected_func_name': 'Summarize'}
+        # {'type': 'ask', 'content': 'aaaaa', 'query': 'Please provide a concise summary of the following content:\n\n{{content}}', 'selected_func_name': None}
         print(request_data)
+    
+    def get_default_serv_model(self):
+        return (self.default_service, self.default_model_name)
         
-    def call_func_by_name(self, func_name, args):
-        pass
+    def get_func_serv_model(self, func_name):
+        if func_name in self.func_to_serv_model_map:
+            service_name, model_name = self.func_to_serv_model_map[func_name]
+            return (self.ai_services[service_name], model_name)
+        else:
+            return self.get_default_serv_model()
