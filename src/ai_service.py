@@ -133,7 +133,7 @@ class DefaultGenerationConfig:
         else:
             return {
                 'n': 1,
-                'temperature': 0.2,
+                'temperature': 0.5,
                 'top_p': 0.75,
                 'max_tokens': 8192,
                 'timeout': 300

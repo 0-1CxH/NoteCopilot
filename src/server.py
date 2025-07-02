@@ -70,19 +70,26 @@ class NoteCopilotServer:
             return jsonify({'error': str(e)}), 500
 
     def ai_request(self):
-        import time
-        time.sleep(2)
         data = request.get_json()
-        self.copilot(data)
-        def generate():
-            # Simulate streaming chunks
-            for word in [
-                "<ai-message><ai-message-component-think>", f"The *type* of **ai request** is ==", f"{data['type']}", "==</ai-message-component-think>"
-                "<ai-message-component-response>", f"{data.get('selected_func_name')}\n ### the query entered is <u>{data.get('query')}</u> \n >", "- this is ", "a ", "streamed ", "response \n- ",
-                "the content entered is: \n```\n", f"{data['content']}\n", "```", "\n</ai-message-component-response></ai-message>"]:
-                yield word
-                time.sleep(0.1)
-        return Response(generate(), mimetype='text/plain')
+        resp_stream = self.copilot(data)
+
+        # def re_formatter(resp_stream):
+        #     first_chunk = True
+        #     last_chunk = True
+        #     for chunk in resp_stream:
+        #         if chunk is None:
+        #             last_chunk = False
+        #             yield "</ai-message>"
+        #         if first_chunk:
+        #             first_chunk = False
+        #             # Add opening ai-message tag at start
+        #             chunk = "<ai-message>" + chunk
+        #         yield chunk
+        #     if last_chunk:
+        #         yield "</ai-message>"
+
+        return Response(resp_stream, mimetype='text/plain')
+        # return Response(re_formatter(resp_stream), mimetype='text/plain')
 
     def save_md_file(self):
         data = request.get_json()

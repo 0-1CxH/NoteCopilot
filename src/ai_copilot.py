@@ -84,13 +84,43 @@ class AICopilot:
             return list(self_obj.ai_functions.values())
 
     def __call__(self, request_data):
-        # type
-        # content
-        # selected_func_name = None
-        # {'type': 'completion', 'content': 'aaaaa'}
-        # {'type': 'ask', 'content': 'aaaaa', 'query': 'Please provide a concise summary of the following content:\n\n{{content}}', 'selected_func_name': 'Summarize'}
-        # {'type': 'ask', 'content': 'aaaaa', 'query': 'Please provide a concise summary of the following content:\n\n{{content}}', 'selected_func_name': None}
-        print(request_data)
+        selected_func_name = request_data.get('selected_func_name', None)
+        serv_, model_ = self.get_func_serv_model(selected_func_name)
+
+        type_ = request_data['type']
+        if type_ == "completion":
+            query_ = "Read and analyze the following content, then try to continue writing it:\n{{content}}\n\nNote: put your analysis in a pair of <think></think> tags and start answer immediately after that."
+        elif type_ == "ask":
+            query_ = request_data.get("query")
+        else:
+            return "Invalid Request Type"
+        
+        content_ = request_data['content']
+        if content_.strip() == "":
+            return "No Content Provided"
+        
+        if "{{content}}" in query_:
+            if query_.count("{{content}}") > 1:
+                logger.warning(f"Content will be repalced more than once!")
+            query_ = query_.replace("{{content}}", content_)
+        else:
+            query_ = content_ + "\n\n"  + query_
+        
+        messages_ = []
+        if self.system_message:
+            messages_.append(
+                {"role": "system", "content": self.system_message}
+            )
+        messages_.append(
+            {"role": "user", "content": query_}
+        )
+        logger.info(f"Generate with {serv_.api_endpoint}, {model_}. Messages: {messages_}")
+        return serv_.generate(
+            messages = messages_,
+            streaming = True,
+            model_name = model_,
+            generation_config = {'n': 1, 'max_tokens': 256,} if type_ == "completion" else None
+        )
     
     def get_default_serv_model(self):
         return (self.default_service, self.default_model_name)
