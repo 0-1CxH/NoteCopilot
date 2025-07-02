@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from .md2html_convert import Markdown2HTMLConverter
 from .ai_copilot import AICopilot
+from .stream_reformat import StreamReformatter
 import os
 import time
 import logging
@@ -72,24 +73,7 @@ class NoteCopilotServer:
     def ai_request(self):
         data = request.get_json()
         resp_stream = self.copilot(data)
-
-        # def re_formatter(resp_stream):
-        #     first_chunk = True
-        #     last_chunk = True
-        #     for chunk in resp_stream:
-        #         if chunk is None:
-        #             last_chunk = False
-        #             yield "</ai-message>"
-        #         if first_chunk:
-        #             first_chunk = False
-        #             # Add opening ai-message tag at start
-        #             chunk = "<ai-message>" + chunk
-        #         yield chunk
-        #     if last_chunk:
-        #         yield "</ai-message>"
-
-        return Response(resp_stream, mimetype='text/plain')
-        # return Response(re_formatter(resp_stream), mimetype='text/plain')
+        return Response(StreamReformatter.execute(resp_stream), mimetype='text/plain')
 
     def save_md_file(self):
         data = request.get_json()
