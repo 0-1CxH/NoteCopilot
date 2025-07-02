@@ -73,8 +73,8 @@ class NoteCopilotServer:
     def ai_request(self):
         data = request.get_json()
         resp_stream = self.copilot(data)
-        # return Response(StreamReformatter.execute(resp_stream), mimetype='text/plain')
-        return Response(resp_stream, mimetype='text/plain')
+        return Response(StreamReformatter.execute(resp_stream), mimetype='text/plain')
+        # return Response(resp_stream, mimetype='text/plain')
 
     def save_md_file(self):
         data = request.get_json()

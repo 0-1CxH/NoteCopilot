@@ -161,13 +161,33 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
                 model=model_name,
                 messages=messages,
                 stream=streaming,
+                extra_body={"return_reasoning": True}, #  if model_name.startswith("deepseek-r") else None
                 **effective_generation_config
             )
         if streaming is True:
+            is_in_thinking = False
+            first_chunk = True
             for event in completion:
                 if len(event.choices) > 0:
-                    if event.choices[0].delta.content is not None:
-                        yield event.choices[0].delta.content
+                    if first_chunk:
+                        first_chunk = False
+                        if hasattr(event.choices[0].delta, "reasoning_content"):
+                            is_in_thinking = True
+                            yield "<think>"
+                        
+                    if is_in_thinking:
+                        if hasattr(event.choices[0].delta, "reasoning_content"):
+                            if event.choices[0].delta.reasoning_content is not None:
+                                yield event.choices[0].delta.reasoning_content
+                            else:
+                                continue
+                        else:
+                            is_in_thinking = False
+                            yield "</think>"
+                    
+                    if not is_in_thinking:
+                        if event.choices[0].delta.content is not None:
+                            yield event.choices[0].delta.content
                     if event.choices[0].finish_reason == "stop":
                         yield None # means end
         else:
