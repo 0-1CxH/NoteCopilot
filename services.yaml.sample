@@ -1,0 +1,15 @@
+services:
+  # Standard OpenAI API service
+  openai:
+    type: openai
+    api_endpoint: "https://api.openai.com/v1"
+    api_key: "your-openai-api-key"
+    default_model_name: "default_model_name" # add a default model here
+
+  # Azure OpenAI API services
+  azure:
+    type: azure
+    api_endpoint: "https://your-resource-name.openai.azure.com"
+    api_key: "your-azure-api-key"
+    api_version: "2024-02-15-preview"
+    default_model_name: "default_model_name" # add a default model here

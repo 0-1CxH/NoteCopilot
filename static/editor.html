@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Copilot Editor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: #f7f8fa;
+      color: #222;
+    }
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .split-container {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      border-radius: 16px;
+      margin: 24px;
+      background: #fff;
+      transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1);
+    }
+    .pane {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s;
+      overflow: auto;
+      padding: 24px; /* Add this line */
+    }
+    .pane.left {
+      border-right: 2px solid #e3e7ed;
+      background: linear-gradient(120deg, #f0f2f6 0%, #e2e6ef 100%);
+      transition: background 0.5s;
+    }
+    .pane.right {
+      background: linear-gradient(120deg, #fafbfd 0%, #f5f7fa 100%);
+      transition: background 0.5s;
+      position: relative;
+    }
+    .editor {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 1.1rem;
+      /* padding: 32px 24px; */
+      background: transparent;
+      color: #222;
+      font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+      transition: background 0.3s;
+    }
+    .editor:focus {
+      background: #f0f4fa;
+      /* border: 2px dashed linear-gradient(120deg, #f7f8fa 0%, #e9ecf3 100%); */
+      transition: background 0.3s;
+    }
+    .preview {
+      width: 100%;
+      height: 100%;
+      /* padding: 32px 24px; */
+      overflow: auto;
+      font-size: 1.1rem;
+      animation: fadeIn 0.4s;
+      transition: background 0.3s;
+      border: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+    .resizer {
+      width: 8px;
+      cursor: ew-resize;
+      background: linear-gradient(120deg, #e3e7ed 0%, #cfd8e6 100%);
+      transition: background 0.3s;
+      z-index: 2;
+      position: relative;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .resizer:hover {
+      background: #b6c2d6;
+    }
+    .resizer-bar {
+      width: 3px;
+      height: 40px;
+      background: #b6c2d6;
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+    @media (max-width: 900px) {
+      .split-container {
+        flex-direction: column;
+      }
+      .pane.left, .pane.right {
+        min-width: 0;
+        min-height: 120px;
+      }
+      .resizer {
+        width: 100%;
+        height: 8px;
+        cursor: ns-resize;
+        flex-direction: row;
+      }
+      .resizer-bar {
+        width: 40px;
+        height: 3px;
+      }
+    }
+    .header {
+      padding: 18px 32px 0 32px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #3a4667;
+      letter-spacing: 0.01em;
+      text-shadow: 0 1px 0 #fff;
+      user-select: none;
+    }
+    .subheader {
+      padding: 0 32px 18px 32px;
+      color: #7a869a;
+      font-size: 1rem;
+      font-weight: 400;
+      user-select: none;
+    }
+    /* --- Menu Bar Styles --- */
+    .menu-bar {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 16px 32px 0 32px;
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 2px 16px 0 rgba(99,102,241,0.04);
+      margin-bottom: 8px;
+      animation: menuFadeIn 0.7s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: none; }
+    }
+    .menu-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px 0 rgba(99,102,241,0.04);
+      padding: 6px 10px;
+      transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    .menu-group:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 28px;
+      background: #e2e8f0;
+      margin: 0 14px;
+      border-radius: 2px;
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .menu-btn {
+      background: #f1f5f9;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 13px;
+      font-size: 1.05em;
+      color: #3a4667;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0 2px;
+      box-shadow: 0 1px 4px 0 rgba(99,102,241,0.07);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.13s;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-btn:hover, .menu-btn:focus {
+      background: #ede9fe;
+      color: #4f46e5;
+      box-shadow: 0 2px 8px 0 rgba(99,102,241,0.10);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .menu-btn:active {
+      background: #c7d2fe;
+      color: #3730a3;
+      transform: scale(0.98);
+    }
+    .menu-btn .icon {
+      margin-right: 6px;
+      font-size: 1.1em;
+      vertical-align: middle;
+    }
+    @media (max-width: 900px) {
+      .menu-bar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px 8px 0 8px;
+      }
+      .menu-group {
+        padding: 4px 6px;
+      }
+      .menu-group:not(:last-child)::after {
+        height: 18px;
+        right: -10px;
+      }
+    }
+    .file-list-item {
+      cursor: pointer;
+      padding: 8px 18px;
+      color: #2d3559;
+      border-radius: 7px;
+      margin: 2px 8px;
+      transition: background 0.15s, color 0.15s;
+      outline: none;
+      border: none;
+      font-size: 1.08em;
+      font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      letter-spacing: 0.01em;
+      display: block;
+      font-weight: 500;
+    }
+    .file-list-item:hover, .file-list-item:focus {
+      background: #ede9fe;
+      color: #4f46e5;
+    }
+    .file-list-item:active {
+      background: #c7d2fe;
+      color: #3730a3;
+    }
+    .file-list-loading, .file-list-empty, .file-list-error {
+      color: #888;
+      padding: 12px 18px;
+      text-align: center;
+      font-size: 0.98em;
+    }
+    /* --- Toast Notification Styles --- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      transform: translateX(-50%) translateY(100px);
+      min-width: 220px;
+      max-width: 90vw;
+      background: #32324d;
+      color: #fff;
+      font-size: 1.08em;
+      font-weight: 500;
+      padding: 16px 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px 0 rgba(60,72,100,0.18);
+      opacity: 0;
+      z-index: 3000;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    .toast.toast-error {
+      background: #e53e3e;
+      color: #fff;
+    }
+    .toast.toast-success {
+      background: #2563eb;
+      color: #fff;
+    }
+    /* --- Ask Bubble Card Grid --- */
+    #askFuncCards {
+      display: grid !important;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px 8px;
+      padding: 0 18px 10px 18px;
+      max-height: calc((60px + 12px) * 5); /* 5 rows, 60px card height + 12px gap */
+      overflow-y: auto;
+      min-width: 0;
+    }
+    #askBubble {
+      min-width: 700px !important;
+      max-width: 98vw !important;
+      width: auto !important;
+    }
+    #askFuncCards {
+      min-width: 660px;
+    }
+    .ask-func-card {
+      min-width: 110px;
+      max-width: 180px;
+      background: #f8fafc;
+      border: 1.5px solid #ede9fe;
+      border-radius: 8px;
+      padding: 10px 10px 8px 10px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+      box-sizing: border-box;
+      min-height: 60px;
+      height: auto;
+      word-break: break-word;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    @media (max-width: 1200px) {
+      #askFuncCards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 700px) {
+      #askFuncCards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @keyframes frozenPulse {
+       0% { box-shadow: 0 0 0 0 rgba(79,70,229,0.10); }
+       50% { box-shadow: 0 0 12px 4px rgba(79,70,229,0.18); }
+       100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.10); }
+       0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.25); }
+       50% { box-shadow: 0 0 18px 8px rgba(99,102,241,0.45); }
+       100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.25); }
+    }
+    .editor-frozen {
+       background: #f3f3fa !important;
+       opacity: 0.88;
+       animation: frozenPulse 1.2s infinite;
+       transition: background 0.3s, opacity 0.3s;
+       background: #e0e7ff !important;
+       opacity: 0.92;
+       animation: frozenPulse 1.2s infinite;
+       transition: background 0.3s, opacity 0.3s;
+       position: relative;
+    }
+  </style>
+
+</head>
+<body>
+  <nav class="menu-bar">
+    <div class="menu-group">
+      <button class="menu-btn" id="completionBtn" title="Completion"><span class="fas fa-magic"></span></button>
+      <button class="menu-btn" id="askBtn" title="Ask"><span class="fas fa-brain"></span></button>
+    </div>
+    <div class="menu-group">
+      <button class="menu-btn" title="Insert Code"><span class="fas fa-code"></span></button>
+      <button class="menu-btn" id="insertTableBtn" title="Insert Table"><span class="fas fa-table"></span></button>
+      <button class="menu-btn" id="insertTocBtn" title="Insert TOC"><span class="fas fa-list-ul"></span></button>
+      <button class="menu-btn" id="insertQuoteBtn" title="Insert Quote"><span class="fas fa-quote-left"></span></button>
+      <button class="menu-btn" id="insertTodoBtn" title="Insert TODO"><span class="fas fa-check-square"></span></button>
+      <button class="menu-btn" title="Insert LaTeX"><span class="fas fa-square-root-alt"></span></button>
+      <button class="menu-btn" title="Insert Detail"><span class="fas fa-chevron-circle-down"></span></button>
+    </div>
+    <div class="menu-group">
+      <button class="menu-btn" title="Bold"><span class="icon"><b>B</b></span></button>
+      <button class="menu-btn" title="Italic"><span class="icon"><i>I</i></span></button>
+      <button class="menu-btn" title="Highlight"><span class="fas fa-highlighter"></span></button>
+      <button class="menu-btn" title="Strikethrough"><span class="icon"> S</span></button>
+      <button class="menu-btn" title="Underline"><span class="icon"><u>U</u></span></button>
+    </div>
+    <div class="menu-group">
+      <button class="menu-btn" id="loadBtn" title="Load"><span class="fas fa-folder-open"></span></button>
+      <button class="menu-btn" id="saveBtn" title="Save"><span class="fas fa-save"></span></button>
+      <div class="menu-btn" id="exportDropdownBtn" title="Export" style="position:relative;">
+        <span class="fas fa-file-export"></span>
+      </div>
+      <div id="exportDropdownMenu" style="display:none;position:absolute;top:110%;left:70%;z-index:1001;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:6px 0;min-width:0;">
+        <div style="display:flex;flex-direction:row;gap:0;align-items:center;justify-content:center;">
+          <div class="export-item menu-btn" id="exportMdBtn">
+            <span class="fab fa-markdown"></span>
+          </div>
+          <div class="export-item menu-btn" id="exportHtmlBtn">
+            <span class="fas fa-globe"></span>
+          </div>
+          <div class="export-item menu-btn" id="exportPdfBtn">
+            <span class="far fa-file-pdf"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="menu-group" style="margin-left:auto;">
+      <button class="menu-btn" id="helpBtn" title="Help"><span class="fas fa-question-circle"></span></button>
+    </div>
+  </nav>
+  <div class="split-container" id="splitContainer">
+    <div class="pane left">
+      <textarea class="editor" id="markdownInput" placeholder="Type your Markdown here..." autofocus></textarea>
+    </div>
+    <div class="resizer" id="resizer"><div class="resizer-bar"></div></div>
+    <div class="pane right">
+      <iframe class="preview" id="htmlPreview" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+    </div>
+  </div>
+  <!-- Table Insert Bubble -->
+  <div id="tableBubble" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:16px 18px;gap:10px;flex-direction:column;min-width:180px;">
+    <div style="margin-bottom:8px;font-weight:500;color:#3a4667;">Insert Table</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <label for="tableRows" style="font-size:0.98em;">Rows:</label>
+      <input id="tableRows" type="number" min="1" max="20" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+      <label for="tableCols" style="font-size:0.98em;">Cols:</label>
+      <input id="tableCols" type="number" min="1" max="10" value="2" style="width:48px;padding:2px 6px;border:1px solid #e3e7ed;border-radius:5px;">
+    </div>
+    <button id="tableInsertBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:1em;cursor:pointer;">Insert</button>
+  </div>
+  <!-- File List Modal -->
+  <div id="fileListModal" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Load From</div>
+    <ul id="fileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+  </div>
+  <!-- Save Bubble Modal -->
+  <div id="saveBubble" style="display:none;position:absolute;z-index:2000;min-width:220px;max-width:90vw;max-height:60vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:10px;padding:12px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:16px;color:#3a4667;padding:0 18px;">Save To</div>
+    <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+  <!-- Ask Bubble Modal -->
+  <div id="askBubble" style="display:none;position:absolute;z-index:2000;min-width:260px;max-width:95vw;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e3e7ed;box-shadow:0 4px 16px rgba(60,72,100,0.13);border-radius:12px;padding:18px 0;">
+    <div style="font-size:1.08em;font-weight:600;margin-bottom:12px;color:#3a4667;padding:0 18px;">Ask Copilot</div>
+    <div id="askFuncCards" style="display:flex;flex-wrap:wrap;gap:12px 8px;padding:0 18px 10px 18px;"></div>
+    <div style="display:flex;gap:8px;padding:0 18px 8px 18px;align-items:center;border-top: 2px dashed #4f46e5;padding-top: 8px;">
+      <textarea id="askQueryInput" rows="5" placeholder="Type your question..." style="flex:1;padding:7px 12px;border:1.5px solid #ede9fe;border-radius:7px;font-size:1em;font-family:inherit;background:#fff;color:#4f46e5;resize:vertical;min-height:38px;max-height:120px;line-height:1.4;"></textarea>
+      <button id="askSubmitBtn" style="background:#4f46e5;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:1em;cursor:pointer;align-self:flex-end;height:38px;"></button>
+    </div>
+  </div>
+  <!-- Help Modal -->
+  <div id="helpModal" style="display:none;position:fixed;z-index:3000;left:0;top:0;width:100vw;height:100vh;background:rgba(60,72,100,0.13);backdrop-filter:blur(1.5px);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 4px 32px 0 rgba(60,72,100,0.18);padding:32px 32px 24px 32px;max-width:98vw;width:1000px;position:relative;">
+      <div style="font-size:1.3em;font-weight:700;color:#3a4667;margin-bottom:18px;text-align:center;">Help</div>
+      <ul style="list-style:none;padding:0;margin:0 0 8px 0;font-size:1.08em;color:#3a4667;">
+      <!-- INSERT_YOUR_CODE -->
+      <li style="margin-bottom:10px;">
+        <b>AI Features</b>
+        <ul style="margin-top:6px;margin-bottom:6px;">
+          <li><b>Completion</b>: Select text or place the cursor, then click the <span class="fas fa-magic"></span> button or press <b>Ctrl+Q</b>. AI will continue or complete your text.</li>
+          <li><p><b>Ask Copilot</b>: Select text or place the cursor, then click the <span class="fas fa-brain"></span> button or press <b>Ctrl+Q</b>, enter your query with the help of pre-defined templates. AI will answer your query.</p><p>Note: when entering your query, use <b>Shift+Enter</b> for a new line and <b>Enter</b> for submitting the query.</li></p></li>
+
+        </ul>
+      </li>
+      <li style="margin-bottom:10px;">
+        <b>Menu Buttons</b>
+        <div style="display:flex;gap:20px;">
+          <table style="flex:1;font-size:0.98em;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Icon</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Description</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Keyboard Shortcut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-magic"></span></td><td style="padding:2px 8px;">Completion (AI)</td><td style="padding:2px 8px;"><b>Ctrl+Q</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-brain"></span></td><td style="padding:2px 8px;">Ask Copilot (AI)</td><td style="padding:2px 8px;"><b>Ctrl+W</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-code"></span></td><td style="padding:2px 8px;">Code Block</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-table"></span></td><td style="padding:2px 8px;">Table</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-list-ul"></span></td><td style="padding:2px 8px;">Table of Content</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-quote-left"></span></td><td style="padding:2px 8px;">Blockquote</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-check-square"></span></td><td style="padding:2px 8px;">TODO</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-square-root-alt"></span></td><td style="padding:2px 8px;">LaTeX</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-chevron-circle-down"></span></td><td style="padding:2px 8px;">Detail</td><td style="padding:2px 8px;"><b></b></td></tr>
+            </tbody>
+          </table>
+          <table style="flex:1;font-size:0.98em;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Icon</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Button Description</th>
+                <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #e3e7ed;">Keyboard Shortcut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-bold"></span></td><td style="padding:2px 8px;">Bold</td><td style="padding:2px 8px;"><b>Ctrl+B</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-italic"></span></td><td style="padding:2px 8px;">Italic</td><td style="padding:2px 8px;"><b>Ctrl+I</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-highlighter"></span></td><td style="padding:2px 8px;">Highlight</td><td style="padding:2px 8px;"><b>Ctrl+H</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-strikethrough"></span></td><td style="padding:2px 8px;">Strikethrough</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-underline"></span></td><td style="padding:2px 8px;">Underline</td><td style="padding:2px 8px;"><b></b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-folder-open"></span></td><td style="padding:2px 8px;">Load</td><td style="padding:2px 8px;"><b>Ctrl+L</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-save"></span></td><td style="padding:2px 8px;">Save</td><td style="padding:2px 8px;"><b>Ctrl+S</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fab fa-markdown"></span></td><td style="padding:2px 8px;">Export Markdown</td><td style="padding:2px 8px;"><b>Ctrl+M</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="fas fa-globe"></span></td><td style="padding:2px 8px;">Export HTML</td><td style="padding:2px 8px;"><b>Ctrl+N</b></td></tr>
+              <tr><td style="padding:2px 8px;"><span class="far fa-file-pdf"></span></td><td style="padding:2px 8px;">Export PDF</td><td style="padding:2px 8px;"><b></b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+      <li>
+        <b>Auto Save</b>
+        <ul style="margin-top:6px;">
+          <li>If current note is loaded or saved already, the <b>CTRL+S</b> will save the note without making you choose a filename, also, it will be automatically saved every 60 seconds.</li>
+        </ul>
+      </li>
+      </ul>
+      <div style="color:#7a869a;font-size:0.98em;text-align:center;">Click outside or press <b>Esc</b> to close</div>
+      <button id="closeHelpModal" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.3em;color:#7a869a;cursor:pointer;"><span class="fas fa-times"></span></button>
+    </div>
+  </div>
+  <script>
+    // Live preview logic using backend
+    const mdInput = document.getElementById('markdownInput');
+    const htmlPreview = document.getElementById('htmlPreview');
+    let lastController = null;
+    let editorFrozen = false;
+    let lastScrollPosition = 0; // Add this line to store scroll position
+
+    // Helper to freeze/unfreeze editor
+    function freezeEditor() {
+      editorFrozen = true;
+      mdInput.classList.add('editor-frozen');
+    }
+    function unfreezeEditor() {
+      editorFrozen = false;
+      mdInput.classList.remove('editor-frozen');
+    }
+
+    function showLoading() {
+      const doc = htmlPreview.contentDocument;
+      doc.open();
+      doc.write(`
+        <style>
+          .spinner-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            background: #fff;
+          }
+          .spinner {
+            width: 48px;
+            height: 48px;
+            border: 6px solid #e3e7ed;
+            border-top: 6px solid #3a4667;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+      `);
+      doc.close();
+    }
+    function showError(msg) {
+      const doc = htmlPreview.contentDocument;
+      doc.open();
+      doc.write('<body style="color:#e66;font-family:sans-serif;padding:2em;">Error: ' + msg + '</body>');
+      doc.close();
+    }
+    async function updatePreview() {
+      if (lastController) lastController.abort();
+      const controller = new AbortController();
+      lastController = controller;
+      
+      // Store current scroll position before updating
+      lastScrollPosition = mdInput.scrollTop;
+      
+      showLoading();
+      try {
+        const resp = await fetch('/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ markdown: mdInput.value }),
+          signal: controller.signal
+        });
+        if (!resp.ok) throw new Error('Server error');
+        const data = await resp.json();
+        const doc = htmlPreview.contentDocument;
+        doc.open();
+        doc.write(data.html);
+        doc.close();
+        
+        // Restore scroll position after preview update
+        mdInput.scrollTop = lastScrollPosition;
+        // setTimeout(() => {
+        //   mdInput.scrollTop = lastScrollPosition;
+        // }, 1);
+        
+        // --- MathJax typeset trigger ---
+        function tryTypesetMathJax() {
+          const win = htmlPreview.contentWindow;
+          if (win && win.MathJax && typeof win.MathJax.typesetPromise === 'function') {
+            win.MathJax.typesetPromise();
+          } else {
+            setTimeout(tryTypesetMathJax, 60);
+          }
+        }
+        tryTypesetMathJax();
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        showError(e.message || 'Failed to convert');
+      }
+    }
+    mdInput.addEventListener('input', updatePreview);
+    // Tab inserts 4 spaces in editor
+    mdInput.addEventListener('keydown', function(e) {
+      if (editorFrozen) {
+        // Allow navigation, selection, copy, paste, but block typing and editing
+        const allowed = [
+          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+          'Shift', 'Control', 'Meta', 'Alt', 'Tab',
+          'PageUp', 'PageDown', 'Home', 'End',
+          'Escape', 'CapsLock', 'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
+        ];
+        if (
+          allowed.includes(e.key) ||
+          (e.ctrlKey && ['a','c','x','v','z','y'].includes(e.key.toLowerCase())) // allow ctrl/cmd+A/C/X/V/Z/Y
+        ) {
+          // allow
+        } else {
+          e.preventDefault();
+        }
+        return;
+      }
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const value = this.value;
+        this.value = value.substring(0, start) + '    ' + value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+        // Trigger input event for live preview
+        this.dispatchEvent(new Event('input'));
+      }
+      // Formatting shortcuts
+      if (e.ctrlKey && !e.altKey && !e.metaKey) {
+        let handled = false;
+        switch (e.key.toLowerCase()) {
+          case 'b': // Bold
+            insertAtCursor(mdInput, '**', '**', 'bold');
+            handled = true;
+            break;
+          case 'i': // Italic
+            insertAtCursor(mdInput, '*', '*', 'italic');
+            handled = true;
+            break;
+          case 'h': // Highlight
+            insertAtCursor(mdInput, '==', '==', 'highlight');
+            handled = true;
+            break;
+        }
+        if (handled) {
+          e.preventDefault();
+        }
+      }
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePreview();
+    });
+
+    // Split pane resizer logic
+    const splitContainer = document.getElementById('splitContainer');
+    const leftPane = splitContainer.children[0];
+    const resizer = document.getElementById('resizer');
+    const rightPane = splitContainer.children[2];
+    let isDragging = false;
+    let startX, startWidth;
+    let isVertical = false;
+    function checkOrientation() {
+      isVertical = window.innerWidth < 900;
+    }
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    resizer.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      checkOrientation();
+      if (!isVertical) {
+        startX = e.clientX;
+        startWidth = leftPane.offsetWidth;
+      } else {
+        startX = e.clientY;
+        startWidth = leftPane.offsetHeight;
+      }
+      document.body.style.cursor = isVertical ? 'ns-resize' : 'ew-resize';
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      if (!isVertical) {
+        const dx = e.clientX - startX;
+        const newLeftWidth = Math.max(120, startWidth + dx);
+        leftPane.style.flex = `0 0 ${newLeftWidth}px`;
+        rightPane.style.flex = '1 1 0';
+      } else {
+        const dy = e.clientY - startX;
+        const newTopHeight = Math.max(80, startWidth + dy);
+        leftPane.style.flex = `0 0 ${newTopHeight}px`;
+        rightPane.style.flex = '1 1 0';
+      }
+    });
+    document.addEventListener('mouseup', function() {
+      if (isDragging) {
+        isDragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+    // Touch support
+    resizer.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      checkOrientation();
+      if (!isVertical) {
+        startX = e.touches[0].clientX;
+        startWidth = leftPane.offsetWidth;
+      } else {
+        startX = e.touches[0].clientY;
+        startWidth = leftPane.offsetHeight;
+      }
+      document.body.style.cursor = isVertical ? 'ns-resize' : 'ew-resize';
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      if (!isVertical) {
+        const dx = e.touches[0].clientX - startX;
+        const newLeftWidth = Math.max(120, startWidth + dx);
+        leftPane.style.flex = `0 0 ${newLeftWidth}px`;
+        rightPane.style.flex = '1 1 0';
+      } else {
+        const dy = e.touches[0].clientY - startX;
+        const newTopHeight = Math.max(80, startWidth + dy);
+        leftPane.style.flex = `0 0 ${newTopHeight}px`;
+        rightPane.style.flex = '1 1 0';
+      }
+    });
+    document.addEventListener('touchend', function() {
+      if (isDragging) {
+        isDragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+
+    // --- Improved Scroll synchronization logic ---
+    function syncPreviewScroll() {
+      const scrollTop = mdInput.scrollTop;
+      const scrollHeight = mdInput.scrollHeight - mdInput.clientHeight;
+      const percent = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+      try {
+        const doc = htmlPreview.contentDocument;
+        if (!doc) return;
+        // Try both body and documentElement
+        const targets = [doc.body, doc.documentElement];
+        targets.forEach(el => {
+          if (!el) return;
+          const previewScrollHeight = el.scrollHeight - el.clientHeight;
+          el.scrollTop = percent * previewScrollHeight;
+        });
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+    mdInput.addEventListener('scroll', syncPreviewScroll);
+    // Also sync after preview updates
+    htmlPreview.addEventListener('load', syncPreviewScroll);
+
+    // --- Menu Button Logic ---
+    function insertAtCursor(textarea, before, after = '', placeholder = '') {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      const selected = value.slice(start, end) || placeholder;
+      const newValue = value.slice(0, start) + before + selected + after + value.slice(end);
+      textarea.value = newValue;
+      // Move cursor inside the inserted text
+      const cursorPos = start + before.length + selected.length;
+      textarea.setSelectionRange(cursorPos, cursorPos);
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input'));
+    }
+    function insertBlockAtCursor(textarea, blockText) {
+      const start = textarea.selectionStart;
+      const value = textarea.value;
+      // Insert block at start of line
+      const before = value.lastIndexOf('\n', start - 1) + 1;
+      const after = value.indexOf('\n', start);
+      const newValue = value.slice(0, before) + blockText + '\n' + value.slice(before);
+      textarea.value = newValue;
+      textarea.setSelectionRange(before + blockText.length + 1, before + blockText.length + 1);
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input'));
+    }
+    function downloadFile(filename, content, type = 'text/plain') {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
+    // Save last used filename in localStorage
+    function setLastUsedFile(filename) {
+        localStorage.setItem('lastUsedFile', filename);
+      }
+    function getLastUsedFile() {
+      return localStorage.getItem('lastUsedFile') || '';
+    }
+    // Delete lastUsedFile on page refresh
+    window.addEventListener('load', function() {
+      localStorage.removeItem('lastUsedFile');
+    });
+    
+    // --- Toast Notification Logic ---
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show toast-' + type;
+      // Remove after 10s
+      if (toast.toastTimeout) clearTimeout(toast.toastTimeout);
+      toast.toastTimeout = setTimeout(() => {
+        toast.className = 'toast';
+      }, 10000);
+    }
+    // Menu button event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuBtns = document.querySelectorAll('.menu-btn');
+      const insertTableBtn = document.getElementById('insertTableBtn');
+      const tableBubble = document.getElementById('tableBubble');
+      let bubbleOpen = false;
+      // Position the bubble near the button
+      function showTableBubble() {
+        const rect = insertTableBtn.getBoundingClientRect();
+        tableBubble.style.display = 'flex';
+        tableBubble.style.left = (rect.left + window.scrollX) + 'px';
+        tableBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        bubbleOpen = true;
+        // Focus first input
+        setTimeout(() => document.getElementById('tableRows').focus(), 50);
+      }
+      function hideTableBubble() {
+        tableBubble.style.display = 'none';
+        bubbleOpen = false;
+      }
+      insertTableBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (bubbleOpen) {
+          hideTableBubble();
+        } else {
+          showTableBubble();
+        }
+      });
+      // Insert table on button click
+      document.getElementById('tableInsertBtn').addEventListener('click', () => {
+        const rows = Math.max(1, Math.min(20, parseInt(document.getElementById('tableRows').value) || 2));
+        const cols = Math.max(1, Math.min(10, parseInt(document.getElementById('tableCols').value) || 2));
+        // Build header
+        let header = '|';
+        let sep = '|';
+        for (let c = 0; c < cols; c++) {
+          header += ` Header ${c+1} |`;
+          sep += ' --- |';
+        }
+        let body = '';
+        for (let r = 0; r < rows; r++) {
+          let row = '|';
+          for (let c = 0; c < cols; c++) {
+            row += ` Cell |`;
+          }
+          body += row + '\n';
+        }
+        const tableText = `${header}\n${sep}\n${body}`.trim();
+        insertBlockAtCursor(mdInput, tableText);
+        hideTableBubble();
+      });
+      // Hide bubble on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (bubbleOpen && !tableBubble.contains(e.target) && e.target !== insertTableBtn) {
+          hideTableBubble();
+        }
+      });
+      // Hide bubble on scroll or resize
+      window.addEventListener('scroll', hideTableBubble);
+      window.addEventListener('resize', hideTableBubble);
+
+      
+
+      // Export dropdown logic
+      const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+      const exportDropdownMenu = document.getElementById('exportDropdownMenu');
+      let exportOpen = false;
+      function showExportDropdown() {
+        exportDropdownMenu.style.display = 'block';
+        exportOpen = true;
+      }
+      function hideExportDropdown() {
+        exportDropdownMenu.style.display = 'none';
+        exportOpen = false;
+      }
+      exportDropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (exportOpen) {
+          hideExportDropdown();
+        } else {
+          showExportDropdown();
+        }
+      });
+      // Hide dropdown on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (exportOpen && !exportDropdownMenu.contains(e.target) && e.target !== exportDropdownBtn) {
+          hideExportDropdown();
+        }
+      });
+      window.addEventListener('scroll', hideExportDropdown);
+      window.addEventListener('resize', hideExportDropdown);
+      // Export actions
+      document.getElementById('exportMdBtn').addEventListener('click', () => {
+        const filename = getLastUsedFile() ? getLastUsedFile() : 'note.md';
+        downloadFile(filename, mdInput.value, 'text/markdown');
+        hideExportDropdown();
+      });
+      document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+        try {
+          const doc = htmlPreview.contentDocument;
+          const html = doc.documentElement.outerHTML;
+          const filename = getLastUsedFile() ? getLastUsedFile() : 'note.html';
+          downloadFile(filename, html, 'text/html');
+        } catch (e) {
+          alert('Preview not ready');
+        }
+        hideExportDropdown();
+      });
+      document.getElementById('exportPdfBtn').addEventListener('click', () => {
+        try {
+          htmlPreview.contentWindow.focus();
+          htmlPreview.contentWindow.print();
+        } catch (e) {
+          alert('Preview not ready');
+        }
+        hideExportDropdown();
+      });
+      menuBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
+          const title = btn.title;
+          switch (title) {
+            case 'Insert Code':
+              insertBlockAtCursor(mdInput, '```\ncode here\n```');
+              break;
+            case 'Insert LaTeX':
+              insertBlockAtCursor(mdInput, '$$\nE = mc^2\n$$');
+              break;
+            case 'Insert Detail':
+              insertAtCursor(mdInput, '<details open>\n<summary>Details</summary>\n<p>More info here.</p>\n</details>');
+              break;
+            case 'Bold':
+              insertAtCursor(mdInput, '**', '**', 'bold');
+              break;
+            case 'Italic':
+              insertAtCursor(mdInput, '*', '*', 'italic');
+              break;
+            case 'Highlight':
+              insertAtCursor(mdInput, '==', '==', 'highlight');
+              break;
+            case 'Strikethrough':
+              insertAtCursor(mdInput, '~~', '~~', 'strikethrough');
+              break;
+            case 'Underline':
+              insertAtCursor(mdInput, '<u>', '</u>', 'underline');
+              break;
+            case 'Insert TOC':
+              insertBlockAtCursor(mdInput, '[TOC]');
+              break;
+            case 'Insert Quote':
+              insertBlockAtCursor(mdInput, '> quote here');
+              break;
+            case 'Insert TODO':
+              insertBlockAtCursor(mdInput, '- [ ] TODO item');
+              break;
+          }
+        });
+      });
+      // Load/Save logic
+      const loadBtn = document.getElementById('loadBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const fileListModal = document.getElementById('fileListModal');
+      const fileList = document.getElementById('fileList');
+      // Show file list bubble under Load button
+      function showFileListBubble() {
+        const rect = loadBtn.getBoundingClientRect();
+        fileListModal.style.display = 'block';
+        fileListModal.style.left = (rect.left + window.scrollX) + 'px';
+        fileListModal.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      }
+      function hideFileListBubble() {
+        fileListModal.style.display = 'none';
+      }
+      loadBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (fileListModal.style.display === 'block') {
+          hideFileListBubble();
+          return;
+        }
+        fileList.innerHTML = '<li class="file-list-loading">Loading...</li>';
+        showFileListBubble();
+        try {
+          const resp = await fetch('/list');
+          if (!resp.ok) throw new Error('Failed to fetch file list');
+          const data = await resp.json();
+          const files = data.files;
+          if (!Array.isArray(files) || files.length === 0) {
+            fileList.innerHTML = '<li class="file-list-empty">No files found.</li>';
+          } else {
+            fileList.innerHTML = '';
+            files.forEach(filename => {
+              const li = document.createElement('li');
+              li.textContent = filename;
+              li.className = 'file-list-item';
+              li.tabIndex = 0;
+              li.addEventListener('click', async () => {
+                try {
+                  const resp = await fetch(`/load?file=${encodeURIComponent(filename)}`);
+                  setLastUsedFile(filename)
+                  if (!resp.ok) throw new Error('Failed to load file');
+                  const data = await resp.json();
+                  if (typeof data.content === 'string') {
+                    mdInput.value = data.content;
+                    mdInput.dispatchEvent(new Event('input'));
+                    hideFileListBubble();
+                  } else {
+                    alert('Invalid file content');
+                  }
+                } catch (e) {
+                  alert('Error loading file: ' + e.message);
+                }
+              });
+              li.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                  li.click();
+                }
+              });
+              fileList.appendChild(li);
+            });
+          }
+        } catch (e) {
+          fileList.innerHTML = '<li class="file-list-error">Error: ' + e.message + '</li>';
+        }
+      });
+      // Hide bubble on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (fileListModal.style.display === 'block' && !fileListModal.contains(e.target) && e.target !== loadBtn) {
+          hideFileListBubble();
+        }
+      });
+      window.addEventListener('scroll', hideFileListBubble);
+      window.addEventListener('resize', hideFileListBubble);
+      // Save logic
+      // --- Save Bubble Modal ---
+      // Create save modal if not exists
+      let saveBubble = document.getElementById('saveBubble');
+      if (!saveBubble) {
+        saveBubble = document.createElement('div');
+        saveBubble.id = 'saveBubble';
+        saveBubble.style.display = 'none';
+        saveBubble.style.position = 'absolute';
+        saveBubble.style.zIndex = '2000';
+        saveBubble.style.minWidth = '220px';
+        saveBubble.style.maxWidth = '90vw';
+        saveBubble.style.maxHeight = '60vh';
+        saveBubble.style.overflow = 'auto';
+        saveBubble.style.background = '#fff';
+        saveBubble.style.border = '1px solid #e3e7ed';
+        saveBubble.style.boxShadow = '0 4px 16px rgba(60,72,100,0.13)';
+        saveBubble.style.borderRadius = '10px';
+        saveBubble.style.padding = '12px 0';
+        saveBubble.innerHTML = `
+          <div style="font-size:1.08em;font-weight:600;margin-bottom:8px;color:#3a4667;padding:0 18px;">Save As</div>
+          <ul id="saveFileList" style="list-style:none;padding:0 0 0 0;margin:0;"></ul>
+        `;
+        document.body.appendChild(saveBubble);
+      }
+      const saveFileList = saveBubble.querySelector('#saveFileList');
+      // Helper to show/hide save bubble
+      function showSaveBubble() {
+        const rect = saveBtn.getBoundingClientRect();
+        saveBubble.style.display = 'block';
+        saveBubble.style.left = (rect.left + window.scrollX) + 'px';
+        saveBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      }
+      function hideSaveBubble() {
+        saveBubble.style.display = 'none';
+      }
+      // Hide on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (saveBubble.style.display === 'block' && !saveBubble.contains(e.target) && e.target !== saveBtn) {
+          hideSaveBubble();
+        }
+      });
+      window.addEventListener('scroll', hideSaveBubble);
+      window.addEventListener('resize', hideSaveBubble);
+      
+      
+      // Save button click logic
+      saveBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (saveBubble.style.display === 'block') {
+          hideSaveBubble();
+          return;
+        }
+        saveFileList.innerHTML = '<li class="file-list-loading">Loading...</li>';
+        showSaveBubble();
+        try {
+          const resp = await fetch('/list');
+          if (!resp.ok) throw new Error('Failed to fetch file list');
+          const data = await resp.json();
+          const files = data.files || [];
+          const lastUsed = getLastUsedFile();
+          saveFileList.innerHTML = '';
+          files.forEach(filename => {
+            const li = document.createElement('li');
+            li.textContent = filename;
+            li.className = 'file-list-item';
+            li.tabIndex = 0;
+            if (filename === lastUsed) {
+              li.style.border = '2px solid #7c3aed';
+            }
+            li.addEventListener('click', async () => {
+              try {
+                const resp = await fetch('/save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ filename, content: mdInput.value })
+                });
+                if (!resp.ok) throw new Error('Failed to save file');
+                setLastUsedFile(filename);
+                hideSaveBubble();
+                showToast('File saved!', 'success');
+              } catch (e) {
+                showToast('Error saving file: ' + e.message, 'error');
+              }
+            });
+            li.addEventListener('keydown', (ev) => {
+              if (ev.key === 'Enter' || ev.key === ' ') {
+                li.click();
+              }
+            });
+            saveFileList.appendChild(li);
+          });
+          // --- New file textbox and confirm icon ---
+          const newLi = document.createElement('li');
+          newLi.style.display = 'flex';
+          newLi.style.alignItems = 'center';
+          newLi.style.padding = '2px 8px';
+          newLi.style.borderRadius = '7px';
+          newLi.style.fontFamily = "'JetBrains Mono', 'Fira Mono', 'Consolas', 'Menlo', monospace";
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'New File...';
+          input.style.flex = '1';
+          input.style.padding = '6px 10px';
+          input.style.border = '2px solid #ede9fe';
+          input.style.borderRadius = '6px';
+          input.style.fontSize = '1em';
+          input.style.fontFamily = 'inherit';
+          input.style.background = '#fff';
+          input.style.color = '#4f46e5';
+          input.addEventListener('keydown', async (ev) => {
+            if (ev.key === 'Enter') {
+              const filename = input.value.trim();
+              if (!filename) {
+                input.focus();
+                return;
+              }
+              try {
+                const resp = await fetch('/save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ filename, content: mdInput.value })
+                });
+                if (!resp.ok) throw new Error('Failed to save file');
+                setLastUsedFile(filename);
+                hideSaveBubble();
+                showToast('File saved!', 'success');
+              } catch (e) {
+                showToast('Error saving file: ' + e.message, 'error');
+              }
+            }
+          });
+          newLi.appendChild(input);
+          saveFileList.appendChild(newLi);
+        } catch (e) {
+          saveFileList.innerHTML = '<li class="file-list-error">Error: ' + e.message + '</li>';
+        }
+      });
+      // AI Completion/Ask logic
+      const completionBtn = document.getElementById('completionBtn');
+      const askBtn = document.getElementById('askBtn');
+      const COMPLETION_TYPE = 'completion';
+      completionBtn.addEventListener('click', async () => {
+        freezeEditor();
+        const start = mdInput.selectionStart;
+        const end = mdInput.selectionEnd;
+        const selected = mdInput.value.slice(start, end);
+        // If no selection, use content before cursor
+        const content = selected || mdInput.value.slice(0, start);
+        // Show loading indicator in editor
+        const oldValue = mdInput.value;
+        const loadingText = '\n<ai-message><ai-message-component-response>\nAI is thinking...\n</ai-message-component-response></ai-message>\n';
+        let loadingStart, loadingEnd;
+        if (selected) {
+          // Insert loading text after selection
+          mdInput.setRangeText(selected + loadingText, start, end, 'end');
+          loadingStart = start + selected.length;
+          loadingEnd = loadingStart + loadingText.length;
+        } else {
+          // Insert loading text at the cursor position
+          mdInput.setRangeText(loadingText, start, start, 'end');
+          loadingStart = start;
+          loadingEnd = start + loadingText.length;
+        }
+        mdInput.setSelectionRange(loadingEnd, loadingEnd);
+        mdInput.dispatchEvent(new Event('input'));
+        try {
+          const resp = await fetch('/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: COMPLETION_TYPE, content })
+          });
+          if (!resp.ok) throw new Error('AI request failed');
+          const reader = resp.body.getReader();
+          let aiText = '';
+          let decoder = new TextDecoder();
+          let currentLoadingStart = loadingStart;
+          let currentLoadingEnd = loadingEnd;
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            aiText += decoder.decode(value, { stream: true });
+            // Always use the original loadingStart and loadingEnd to replace the region
+            const valueBefore = mdInput.value.slice(0, currentLoadingStart);
+            const valueAfter = mdInput.value.slice(currentLoadingEnd);
+            mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
+            // Update the end index for the next replacement
+            currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1; // +1 for leading/trailing \n
+            mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
+            mdInput.dispatchEvent(new Event('input'));
+          }
+        } catch (e) {
+          // Remove loading text and alert
+          const valueBefore = mdInput.value.slice(0, loadingStart);
+          const valueAfter = mdInput.value.slice(loadingEnd);
+          mdInput.value = valueBefore + valueAfter;
+          mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
+          mdInput.dispatchEvent(new Event('input'));
+          showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
+        }
+        unfreezeEditor();
+      });
+      
+      // --- Second block content ---
+      const askBubble = document.getElementById('askBubble');
+      const askFuncCards = document.getElementById('askFuncCards');
+      const askQueryInput = document.getElementById('askQueryInput');
+      const askSubmitBtn = document.getElementById('askSubmitBtn');
+      let askBubbleOpen = false;
+      let selectedFunc = null;
+      function showAskBubble() {
+        const rect = askBtn.getBoundingClientRect();
+        askBubble.style.display = 'block';
+        askBubble.style.left = (rect.left + window.scrollX) + 'px';
+        askBubble.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        askBubbleOpen = true;
+        askQueryInput.focus();
+      }
+      function hideAskBubble() {
+        askBubble.style.display = 'none';
+        askBubbleOpen = false;
+        selectedFunc = null;
+      }
+      askBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (askBubbleOpen) {
+          hideAskBubble();
+          return;
+        }
+        askFuncCards.innerHTML = '<div style="color:#888;font-size:0.98em;">Loading...</div>';
+        showAskBubble();
+        try {
+          const resp = await fetch('/funcs');
+          if (!resp.ok) throw new Error('Failed to fetch functions');
+          const data = await resp.json();
+          const funcs = data.funcs || [];
+          askFuncCards.innerHTML = '';
+          funcs.forEach(func => {
+            const card = document.createElement('div');
+            card.className = 'ask-func-card';
+            card.style.cssText = 'flex:1 1 120px;min-width:110px;max-width:180px;background:#f8fafc;border:1.5px solid #ede9fe;border-radius:8px;padding:10px 10px 8px 10px;cursor:pointer;transition:box-shadow 0.2s,border 0.2s;display:flex;flex-direction:column;gap:4px;align-items:flex-start;';
+            card.innerHTML = `<span class="${func.icon}" style="color:#4f46e5;font-size:1.3em;margin-bottom:2px;"></span><div style="font-weight:600;font-size:1em;color:#3a4667;">${func.name}</div><div style="font-size:0.97em;color:#7a869a;">${func.description}</div>`;
+            card.addEventListener('click', () => {
+              selectedFunc = func.name;
+              askQueryInput.value += ` ${func.template} `;
+              askQueryInput.focus();
+              // Highlight selected
+              askFuncCards.querySelectorAll('.ask-func-card').forEach(c => c.style.border = '1.5px solid #ede9fe');
+              card.style.border = '2.5px solid #4f46e5';
+            });
+            askFuncCards.appendChild(card);
+          });
+        } catch (e) {
+          askFuncCards.innerHTML = '<div style="color:#e53e3e;font-size:0.98em;">Error: ' + e.message + '</div>';
+        }
+      });
+      // Hide on outside click
+      document.addEventListener('mousedown', (e) => {
+        if (askBubbleOpen && !askBubble.contains(e.target) && e.target !== askBtn) {
+          hideAskBubble();
+        }
+      });
+      window.addEventListener('scroll', hideAskBubble);
+      window.addEventListener('resize', hideAskBubble);
+      // Submit logic
+      askSubmitBtn.addEventListener('click', async () => {
+        freezeEditor();
+        const start = mdInput.selectionStart;
+        const end = mdInput.selectionEnd;
+        const selected = mdInput.value.slice(start, end);
+        // If no selection, use content before cursor
+        const content = selected || mdInput.value.slice(0, start);
+        const query = askQueryInput.value.trim();
+        const selected_func_name = selectedFunc;
+        hideAskBubble();
+        // Insert loading text as in autoCompletionRequest
+        const oldValue = mdInput.value;
+        const loadingText = '\n<ai-message><ai-message-component-response>\nAI is thinking...\n</ai-message-component-response></ai-message>\n';
+        let loadingStart, loadingEnd;
+        if (selected) {
+          mdInput.setRangeText(selected + loadingText, start, end, 'end');
+          loadingStart = start + selected.length;
+          loadingEnd = loadingStart + loadingText.length;
+        } else {
+          mdInput.setRangeText(loadingText, start, start, 'end');
+          loadingStart = start;
+          loadingEnd = start + loadingText.length;
+        }
+        mdInput.setSelectionRange(loadingEnd, loadingEnd);
+        mdInput.dispatchEvent(new Event('input'));
+        try {
+          const resp = await fetch('/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'ask', content, query, selected_func_name })
+          });
+          if (!resp.ok) throw new Error('AI request failed');
+          const reader = resp.body.getReader();
+          let aiText = '';
+          let decoder = new TextDecoder();
+          let currentLoadingStart = loadingStart;
+          let currentLoadingEnd = loadingEnd;
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            aiText += decoder.decode(value, { stream: true });
+            const valueBefore = mdInput.value.slice(0, currentLoadingStart);
+            const valueAfter = mdInput.value.slice(currentLoadingEnd);
+            mdInput.value = valueBefore + '\n' + aiText + '\n' + valueAfter;
+            currentLoadingEnd = currentLoadingStart + 1 + aiText.length + 1;
+            mdInput.setSelectionRange((valueBefore + '\n' + aiText + '\n').length, (valueBefore + '\n' + aiText + '\n').length);
+            mdInput.dispatchEvent(new Event('input'));
+          }
+        } catch (e) {
+          const valueBefore = mdInput.value.slice(0, loadingStart);
+          const valueAfter = mdInput.value.slice(loadingEnd);
+          mdInput.value = valueBefore + valueAfter;
+          mdInput.setSelectionRange(valueBefore.length, valueBefore.length);
+          mdInput.dispatchEvent(new Event('input'));
+          showToast('AI error: ' + (e.message || 'Unknown error'), 'error');
+        }
+        unfreezeEditor();
+      });
+      askQueryInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          askSubmitBtn.click();
+        }
+        // Shift+Enter inserts a new line (default behavior for textarea)
+      });
+      // Set Ask submit button to up arrow icon
+      askSubmitBtn.innerHTML = '<span class="fas fa-arrow-up"></span>';
+      // Help button/modal logic
+      const helpBtn = document.getElementById('helpBtn');
+      const helpModal = document.getElementById('helpModal');
+      const closeHelpModal = document.getElementById('closeHelpModal');
+      helpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        helpModal.style.display = 'flex';
+      });
+      closeHelpModal.addEventListener('click', () => {
+        helpModal.style.display = 'none';
+      });
+      helpModal.addEventListener('mousedown', (e) => {
+        if (e.target === helpModal) helpModal.style.display = 'none';
+      });
+      document.addEventListener('keydown', (e) => {
+        if (helpModal.style.display === 'flex' && e.key === 'Escape') {
+          helpModal.style.display = 'none';
+        }
+      });
+    });
+
+    function fastSave() {
+      const filename = getLastUsedFile();
+      if (!filename || typeof filename !== 'string' || !filename.trim()) {
+        return false;
+      }
+      fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, content: mdInput.value })
+      }).then(resp => {
+        if (!resp.ok) throw new Error('Failed to save file');
+        showToast('File saved!', 'success');
+        return true;
+      }).catch(e => {
+        showToast('Error saving file: ' + (e.message || 'Unknown error'), 'error');
+      });
+    }
+
+    // --- AUTOSAVE every 60 seconds ---
+    setInterval(fastSave, 60000);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && !e.altKey && !e.metaKey) {
+        let handled = false;
+        switch (e.key.toLowerCase()) {
+          case 's': // Save
+            if (fastSave()==false) {
+              console.log("here")
+              const saveBtn = document.getElementById('saveBtn');
+              if (saveBtn) saveBtn.click();
+            }
+            handled = true;
+            break;
+          case 'l': // Load
+            const loadBtn = document.getElementById('loadBtn');
+            if (loadBtn) loadBtn.click();
+            handled = true;
+            break;
+          case 'm': // Export Markdown
+            const exportMdBtn = document.getElementById('exportMdBtn');
+            // Open export dropdown if not visible
+            const exportDropdownMenu = document.getElementById('exportDropdownMenu');
+            const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+            if (exportMdBtn && exportDropdownMenu && exportDropdownBtn) {
+              if (exportDropdownMenu.style.display !== 'block') {
+                exportDropdownBtn.click();
+                setTimeout(() => exportMdBtn.click(), 10);
+              } else {
+                exportMdBtn.click();
+              }
+            }
+            handled = true;
+            break;
+          case 'n': // Export HTML
+            const exportHtmlBtn = document.getElementById('exportHtmlBtn');
+            const exportDropdownMenu2 = document.getElementById('exportDropdownMenu');
+            const exportDropdownBtn2 = document.getElementById('exportDropdownBtn');
+            if (exportHtmlBtn && exportDropdownMenu2 && exportDropdownBtn2) {
+              if (exportDropdownMenu2.style.display !== 'block') {
+                exportDropdownBtn2.click();
+                setTimeout(() => exportHtmlBtn.click(), 10);
+              } else {
+                exportHtmlBtn.click();
+              }
+            }
+            handled = true;
+            break;
+          case 'w': // Ask
+            const askBtn = document.getElementById('askBtn');
+            if (askBtn) askBtn.click();
+            handled = true;
+            break;
+          case 'q': // Completion
+            const completionBtn = document.getElementById('completionBtn');
+            if (completionBtn) completionBtn.click();
+            handled = true;
+            break;
+        }
+        if (handled) {
+          e.preventDefault();
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,4 @@
+markdown
+pygments
+pymdown-extensions
+flask-cors

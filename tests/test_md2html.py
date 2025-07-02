@@ -15,6 +15,64 @@ This is a **bold** text and this is *italic*. Here's some `inline code`.
 
 ---
 
+## AI Message Test
+
+<ai-message>
+<ai-message-component-think>
+# Think Component H1
+## Think Component H2
+### Think Component H3
+
+This is a **bold** paragraph with `inline code` in the think component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+> This is a blockquote in the think component.
+
+| Think | Table | Test |
+|-------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```python
+def think_function():
+    return "This is code in think component"
+```
+</ai-message-component-think>
+<ai-message-component-response>
+# Response Component H1
+## Response Component H2
+### Response Component H3
+
+This is a **bold** paragraph with `inline code` in the response component.
+
+- List item 1
+- List item 2
+  - Nested item
+- List item 3
+
+1. Ordered item 1
+2. Ordered item 2
+
+> This is a blockquote in the response component.
+
+| Response | Table | Test |
+|----------|-------|------|
+| Data 1 | Data 2 | Data 3 |
+
+```javascript
+function responseFunction() {
+    return "This is code in response component";
+}
+```
+</ai-message-component-response>
+</ai-message>
+
 ## Code Examples {#code-examples}
 
 ### Code Block with Syntax Highlighting
@@ -157,15 +215,14 @@ Term 2
 ## Images and Files
 
 ### Regular Images
-![Sample Image](https://via.placeholder.com/400x200)
 ![Alt Text](https://via.placeholder.com/300x150/0066CC/FFFFFF?text=Blue+Image)
 
 ### Images with Titles
-![Sample Image](https://via.placeholder.com/400x200 "This is a title")
+![Sample Image](https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png "This is a title")
 
 ### Local Files
-![Local Text File](requirements.txt)
-![Binary File](test.pdf)
+[Local Text File](tests/a_readable_file.html)
+[Binary File](tests/a_binary_file.bin)
 
 ### Reference Style Images
 ![Reference Image][ref-image]
@@ -256,12 +313,14 @@ This is a custom HTML div with markdown **bold** text inside.
 
 <details>
 <summary>Click to expand</summary>
-
-This is hidden content that can be expanded.
-
-- Item 1
-- Item 2
-- Item 3
+<div class="content">
+<p>This is hidden content that can be expanded.</p>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+    
 
 </details>
 
@@ -351,6 +410,59 @@ Here's a complex example combining multiple elements:
 
 [^complex]: This footnote is referenced from within a blockquote.
 
+```python
+import sys
+import re
+
+sys.path.append("./mock_agents")
+from offline.run_case_rl_test import get_tool_list_exec_res
+
+
+def call_tool_by_text(text):
+    pattern = r"<tool_call>(.*?)</tool_call>"
+    matches = re.findall(pattern, text, re.DOTALL)
+    if matches:
+        tool_result = get_tool_list_exec_res(matches, {}, "")
+        return tool_result
+    else:
+        return None
+
+def generate_with_tool(user_prompt, llm_api_service, tool_instance):
+    messages = [
+        # {"role": "system", "content": system_prompt + example + do_not_gen_tool_note},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    while True:
+        lm_gen_resp = llm_api_service(messages=messages, generation_config={
+            "max_tokens":16384,
+            "temperature":0.2,
+            "n": 1,
+            'timeout': 300
+        })[0]
+        messages.append({"role": "assistant", "content": lm_gen_resp})
+        print(messages[-1]['content'])
+        tool_call_count = lm_gen_resp.count("<tool_call>")
+        end_tool_call_count = lm_gen_resp.count("</tool_call>")
+        if tool_call_count != end_tool_call_count or tool_call_count != 1:
+            if len(messages) <= 3:
+                print(f"ERROR: {tool_call_count=} {end_tool_call_count=}")
+            return messages
+        else:
+            try:
+                tool_ret = tool_instance(lm_gen_resp)
+                if tool_ret is None:
+                    return messages
+                # print(f"DEBUG: {tool_ret=}")
+                messages.append({"role": "user", "content":  f"<tool_response>{tool_ret}</tool_response>"})
+                print(messages[-1]['content'])
+            except Exception as e:
+                print(e)
+                return messages
+    
+```
+
+
 ---
 
 *End of comprehensive markdown test document.*
@@ -361,7 +473,7 @@ Here's a complex example combining multiple elements:
 converter = Markdown2HTMLConverter()
 
 # Convert to HTML
-html_output = converter(sample_markdown)
+html_output = converter(sample_markdown, only_return_body=False)
 
 # Save to file
 with open('tests/output.html', 'w', encoding='utf-8') as f:
