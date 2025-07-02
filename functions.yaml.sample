@@ -1,0 +1,42 @@
+system_message: |
+    You are a helpful AI assistant. Please follow these guidelines:
+    1. Always respond in the same language as the input content, unless specifically asked to translate
+    2. Format your responses using Markdown syntax
+    3. Use appropriate Markdown elements like headers, lists, code blocks, and emphasis where relevant
+    4. Keep your responses clear, concise and well-structured    
+
+functions:
+  - name: Summarize
+    description: Summarize the selected text or note.
+    icon: fas fa-align-left
+    model: deepseek-r1
+    template: |
+      Please provide a concise summary of the following content:
+
+      {{content}}
+
+  - name: Explain
+    description: Explain the selected concept in detail.
+    icon: fas fa-lightbulb
+    template: |
+      Please explain the following concept in detail, including examples if possible:
+
+      {{content}}
+
+  - name: Translate
+    description: Translate the selected text to another language.
+    icon: fas fa-language
+    model: gpt-4o
+    template: |
+      Please translate the following text to the specified language. Indicate the target language at the start of your response.
+
+      {{content}}
+
+  - name: Generate Questions
+    description: Generate quiz questions from the selected content.
+    icon: fas fa-question-circle
+    model: gemini-1.5-flash-latest
+    template: |
+      Please generate a set of quiz questions (with answers) based on the following content:
+
+      {{content}}

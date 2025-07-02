@@ -5,6 +5,7 @@ __pycache__/
 *$py.class
 notes_save
 tests/test_*.yaml
+services.yaml
 # C extensions
 *.so
 

@@ -1297,6 +1297,7 @@
         askBubble.style.display = 'none';
         askBubbleOpen = false;
         selectedFunc = null;
+        askQueryInput.value = '';
       }
       askBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -1319,7 +1320,7 @@
             card.innerHTML = `<span class="${func.icon}" style="color:#4f46e5;font-size:1.3em;margin-bottom:2px;"></span><div style="font-weight:600;font-size:1em;color:#3a4667;">${func.name}</div><div style="font-size:0.97em;color:#7a869a;">${func.description}</div>`;
             card.addEventListener('click', () => {
               selectedFunc = func.name;
-              askQueryInput.value += ` ${func.template} `;
+              askQueryInput.value = ` ${func.template} `;
               askQueryInput.focus();
               // Highlight selected
               askFuncCards.querySelectorAll('.ask-func-card').forEach(c => c.style.border = '1.5px solid #ede9fe');
@@ -1347,9 +1348,10 @@
         const selected = mdInput.value.slice(start, end);
         // If no selection, use content before cursor
         const content = selected || mdInput.value.slice(0, start);
-        const query = askQueryInput.value.trim();
+        const query = askQueryInput.value;
         const selected_func_name = selectedFunc;
         hideAskBubble();
+        askQueryInput.value = '';
         // Insert loading text as in autoCompletionRequest
         const oldValue = mdInput.value;
         const loadingText = '\n<ai-message><ai-message-component-response>\nAI is thinking...\n</ai-message-component-response></ai-message>\n';
