@@ -164,7 +164,6 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
                 **effective_generation_config
             )
         if streaming is True:
-            assert generation_config.get("n", 1) == 1
             for event in completion:
                 if len(event.choices) > 0:
                     if event.choices[0].delta.content is not None:

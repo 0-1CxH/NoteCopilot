@@ -4,13 +4,13 @@ system_message: |
     2. Format your responses using Markdown syntax
     3. Use appropriate Markdown elements like headers, lists, code blocks, and emphasis where relevant
     4. Keep your responses clear, concise and well-structured
+    5. enclose your thinking in a pair of <think> </think> tags, and your thinking should also be the same language of source content 
     
 
 functions:
   - name: Summarize
     description: Summarize the selected text or note.
     icon: fas fa-align-left
-    model: deepseek-r1
     template: |
       Please provide a concise summary of the following content:
 
