@@ -1226,7 +1226,7 @@
         const content = selected || mdInput.value.slice(0, start);
         // Show loading indicator in editor
         const oldValue = mdInput.value;
-        const loadingText = '\n<ai-message><ai-message-component-think>\nAI is thinking...\n</ai-message-component-think></ai-message>\n';
+        const loadingText = '\n<ai-message><ai-message-component-response>\nAI is thinking...\n</ai-message-component-response></ai-message>\n';
         let loadingStart, loadingEnd;
         if (selected) {
           // Insert loading text after selection
@@ -1352,7 +1352,7 @@
         hideAskBubble();
         // Insert loading text as in autoCompletionRequest
         const oldValue = mdInput.value;
-        const loadingText = '\n<ai-message><ai-message-component-think>\nAI is thinking...\n</ai-message-component-think></ai-message>\n';
+        const loadingText = '\n<ai-message><ai-message-component-response>\nAI is thinking...\n</ai-message-component-response></ai-message>\n';
         let loadingStart, loadingEnd;
         if (selected) {
           mdInput.setRangeText(selected + loadingText, start, end, 'end');

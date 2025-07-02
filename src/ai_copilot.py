@@ -89,7 +89,7 @@ class AICopilot:
 
         type_ = request_data['type']
         if type_ == "completion":
-            query_ = "Read and analyze the following content, then try to continue writing it:\n{{content}}\n\nNote: put your analysis in a pair of <think></think> tags and start answer immediately after that."
+            query_ = "Read and analyze the following content, then try to continue writing it:\n{{content}}\n\nNote: start answer immediately, DO NOT GENERATE OTHER THINGS."
         elif type_ == "ask":
             query_ = request_data.get("query")
         else:

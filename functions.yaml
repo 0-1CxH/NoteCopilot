@@ -3,9 +3,7 @@ system_message: |
     1. Always respond in the same language as the input content, unless specifically asked to translate
     2. Format your responses using Markdown syntax
     3. Use appropriate Markdown elements like headers, lists, code blocks, and emphasis where relevant
-    4. Keep your responses clear, concise and well-structured
-    5. enclose your thinking in a pair of <think> </think> tags, and your thinking should also be the same language of source content 
-    
+    4. Keep your responses clear, concise and well-structured    
 
 functions:
   - name: Summarize

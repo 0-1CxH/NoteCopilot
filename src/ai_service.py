@@ -161,7 +161,7 @@ class OpenaiAPICompletionService(BaseAPICompletionService):
                 model=model_name,
                 messages=messages,
                 stream=streaming,
-                extra_body={"return_reasoning": True}, #  if model_name.startswith("deepseek-r") else None
+                extra_body={"return_reasoning": True} if model_name.startswith("deepseek-r") else None,
                 **effective_generation_config
             )
         if streaming is True:
